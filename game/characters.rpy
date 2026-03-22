@@ -12,8 +12,8 @@
 
 # Narrator
 define narrator = Character(None,
-    what_style = "italic",
-    what_color = "#c0c0c0")
+    what_italic = True,
+    what_color  = "#c0c0c0")
 
 # Inner monologue (player thinking)
 define mc = Character("[player_name]",
