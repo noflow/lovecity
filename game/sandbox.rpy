@@ -9,7 +9,7 @@ label sandbox_loop:
 ## ── SHOW MAP ────────────────────────────────────────────────────
 label show_map:
     scene Expression("Solid('#0a0f1a')") with dissolve
-    call screen lc_map
+    $ renpy.call_screen("lc_map")
     return
 
 label sandbox_wait_from_map:
