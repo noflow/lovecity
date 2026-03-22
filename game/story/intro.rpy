@@ -35,7 +35,7 @@ label lc_start:
 
     call check_intro_events
 
-    jump sandbox_hub
+    jump sandbox_loop
 
 
 ## ── MEET MOM ────────────────────────────────────────────────────
