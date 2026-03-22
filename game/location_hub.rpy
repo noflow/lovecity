@@ -55,33 +55,39 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                     rel_lbl  = rel_label(rel_val)
                     is_dating = store.dating.get(npc_id, False)
 
-                imagebutton:
+                frame:
                     xsize   140
                     ysize   220
-                    idle    Frame(Solid("#0f172a88"), 16, 16)
-                    hover   Frame(Solid("#f472b622"), 16, 16)
-                    action  Return(("talk", npc_id))
+                    background Frame(Solid("#0f172a88"), 16, 16)
+                    hover_background Frame(Solid("#f472b622"), 16, 16)
+                    padding (0, 0)
 
-                    has vbox:
-                        xalign 0.5
-                        spacing 6
+                    button:
+                        action  Return(("talk", npc_id))
+                        xfill   True
+                        yfill   True
 
-                        frame:
-                            xalign  0.5
-                            xsize   110
-                            ysize   150
-                            background "#0a0a1e"
-                            vbox:
-                                xalign 0.5
-                                yalign 0.5
-                                text ("❤️" if is_dating else "👤") size 56 xalign 0.5
-                                text npc_name.split()[0] size 11 color "#f472b6" xalign 0.5
+                        vbox:
+                            xalign 0.5
+                            yalign 0.5
+                            spacing 6
 
-                        text npc_name.split()[0] size 14 bold True color "#f472b6" xalign 0.5
-                        text rel_lbl size 11 color "#475569" xalign 0.5
+                            frame:
+                                xalign  0.5
+                                xsize   110
+                                ysize   150
+                                background "#0a0a1e"
+                                vbox:
+                                    xalign 0.5
+                                    yalign 0.5
+                                    text ("❤️" if is_dating else "👤") size 56 xalign 0.5
+                                    text npc_name.split()[0] size 11 color "#f472b6" xalign 0.5
 
-                        if is_dating:
-                            text "💕" size 14 xalign 0.5
+                            text npc_name.split()[0] size 14 bold True color "#f472b6" xalign 0.5
+                            text rel_lbl size 11 color "#475569" xalign 0.5
+
+                            if is_dating:
+                                text "💕" size 14 xalign 0.5
 
     else:
         frame:
@@ -189,23 +195,29 @@ screen lc_home_hub():
                         if npc_loc == "home" and (npc_room == room_id or npc_room is None):
                             npcs_in_room.append(npc_id)
 
-                imagebutton:
+                frame:
                     xsize   160
                     ysize   130
-                    idle    Frame(Solid("#0f172a99"), 14, 14)
-                    hover   Frame(Solid("#f472b622"), 14, 14)
-                    action  Return(("enter_room", room_id))
+                    background Frame(Solid("#0f172a99"), 14, 14)
+                    hover_background Frame(Solid("#f472b622"), 14, 14)
+                    padding (0, 0)
 
-                    has vbox:
-                        xalign 0.5
-                        spacing 6
-                        text room_info["icon"] size 38 xalign 0.5
-                        text room_info["name"] size 14 bold True color "#e2e8f0" xalign 0.5 text_align 0.5
-                        if npcs_in_room:
-                            hbox:
-                                xalign 0.5
-                                spacing 4
-                                for npc_id in npcs_in_room:
-                                    python:
-                                        npc = NPC_DATA.get(npc_id, {})
-                                    text npc.get("name","?").split()[0] size 11 color "#f472b6"
+                    button:
+                        action  Return(("enter_room", room_id))
+                        xfill   True
+                        yfill   True
+
+                        vbox:
+                            xalign 0.5
+                            yalign 0.5
+                            spacing 6
+                            text room_info["icon"] size 38 xalign 0.5
+                            text room_info["name"] size 14 bold True color "#e2e8f0" xalign 0.5 text_align 0.5
+                            if npcs_in_room:
+                                hbox:
+                                    xalign 0.5
+                                    spacing 4
+                                    for npc_id in npcs_in_room:
+                                        python:
+                                            npc = NPC_DATA.get(npc_id, {})
+                                        text npc.get("name","?").split()[0] size 11 color "#f472b6"
