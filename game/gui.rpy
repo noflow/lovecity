@@ -48,7 +48,7 @@ define gui.choice_button_height        = None
 define gui.choice_button_tile          = False
 define gui.choice_button_borders       = Borders(150, 5, 150, 5)
 define gui.choice_button_text_font     = gui.interface_font
-define gui.choice_button_text_size     = gui.choice_text_size
+define gui.choice_button_text_size     = 22
 define gui.choice_button_text_xalign   = 0.5
 
 define gui.choice_button_text_idle_color       = "#94a3b8"
