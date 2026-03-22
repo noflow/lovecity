@@ -1,7 +1,7 @@
 ## story/intro.rpy — Opening day of LoveCity
 ## ═══════════════════════════════════════════════════════════════
 
-label start:
+label lc_start:
     # Name entry
     $ player_name = renpy.input("What's your name?", default="Player", length=20).strip() or "Player"
 
@@ -150,12 +150,6 @@ label meet_cora:
     return
 
 
-## ── EVENT: FIRST AFTERNOON ──────────────────────────────────────
-label event_first_afternoon:
-    narrator "The afternoon light is different from the morning light."
-    narrator "You've been out there. You've seen something of it."
-    $ add_diary("First full afternoon in LoveCity. Still finding my footing.")
-    return
 
 
 ## ── TALK STUBS ──────────────────────────────────────────────────
