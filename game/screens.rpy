@@ -94,7 +94,7 @@ screen hud():
             null width 12
 
             # Menu button
-            textbutton "≡" action ShowMenu("lc_menu") style "lc_button_small"
+            textbutton "≡" action ShowScreen("lc_menu") style "lc_button_small"
 
 ## ── MAIN MENU / PAUSE ───────────────────────────────────────────
 screen lc_menu():
