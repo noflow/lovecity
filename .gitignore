@@ -1,0 +1,30 @@
+# Ren'Py generated files
+game/cache/
+game/saves/
+game/log.txt
+game/errors.txt
+game/traceback.txt
+
+# Ren'Py compiled scripts
+game/**/*.rpyc
+game/**/*.rpymc
+
+# Distribution folders
+game/android-*.txt
+game/ios/
+renpy/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Editor
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

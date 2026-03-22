@@ -1,0 +1,259 @@
+## map_screen.rpy — Clickable city map (Summertime Saga style)
+## ═══════════════════════════════════════════════════════════════
+##
+## The map is a positioned layout where each location is a
+## clickable button placed at x,y coordinates over a city image.
+## NPCs shown as avatar dots on locations where they currently are.
+##
+## map.jpg = 1280x720 city overview image
+## If no image, we draw a stylised grid layout.
+## ═══════════════════════════════════════════════════════════════
+
+## ── MAP LOCATION DATA ───────────────────────────────────────────
+## Each location has pixel x,y on the 1280×720 map image.
+## Cluster positions loosely resemble a city grid.
+init python:
+    MAP_LOCATIONS = [
+        # id           label               icon   x     y
+        ("home",       "Home",             "🏠",  130,  480),
+        ("school",     "Highbrook\nAcademy","🎓",  300,  180),
+        ("cafe",       "Moondrop\nCafé",   "☕",  440,  340),
+        ("mall",       "Sakura\nMall",     "🛍️",  680,  200),
+        ("park",       "Riverside\nPark",  "🌳",  560,  480),
+        ("clinic",     "Luminos\nClinic",  "🏥",  850,  160),
+        ("gym",        "Iron Peak\nGym",   "💪",  200,  310),
+        ("office",     "City\nOffice",     "🏢",  780,  400),
+        ("bar",        "Neon\nLounge",     "🍸",  950,  520),
+        ("library",    "Grand\nLibrary",   "📚",  390,  500),
+        ("salon",      "Glam\nStudio",     "✂️",  660,  560),
+        ("street",     "City\nStreets",    "🏙️",  1050, 320),
+    ]
+
+    # Quick lookup
+    MAP_LOC_DICT = {loc[0]: loc for loc in MAP_LOCATIONS}
+
+## ── MAP SCREEN ──────────────────────────────────────────────────
+screen lc_map():
+    tag map
+    zorder 50
+
+    # Full-screen city background
+    if renpy.loadable("maps/city_map.jpg"):
+        add "maps/city_map.jpg"
+    elif renpy.loadable("maps/city_map.png"):
+        add "maps/city_map.png"
+    else:
+        # Fallback: draw a stylised dark city grid
+        add Solid("#0a0f1a")
+        # Grid lines (road-like)
+        for gx in range(0, 1281, 120):
+            add Solid("#1a2030") xpos gx ypos 0 xsize 2 ysize 720
+        for gy in range(0, 721, 90):
+            add Solid("#1a2030") xpos 0 ypos gy xsize 1280 ysize 2
+
+    # Semi-transparent overlay so text reads clearly
+    add Solid("#00000055")
+
+    # ── HUD strip ──
+    use hud_map()
+
+    # ── Location buttons ──
+    for loc_id, label, icon, lx, ly in MAP_LOCATIONS:
+        python:
+            npcs_here  = npcs_at_location(loc_id)
+            is_current = (current_location == loc_id)
+            loc_info   = LOCATIONS.get(loc_id, {})
+            is_open    = loc_info.get("always_open", False) or "hours" not in loc_info
+            # Check hours vs current period
+            if "hours" in loc_info and not is_open:
+                h = loc_info["hours"]
+                # Simple period-to-hour mapping
+                period_hour = [8, 13, 18, 22][time_period]
+                is_open = (h[0] <= period_hour < h[1]) if h[0] < h[1] else True
+
+        imagebutton:
+            xpos lx - 50
+            ypos ly - 50
+            xsize 100
+            ysize 100
+            idle   Frame(Solid("#0f172a99"), 12, 12)
+            hover  Frame(Solid("#f472b622"), 12, 12)
+            action [SetVariable("current_location", loc_id), Hide("lc_map"), Jump("sandbox_location_enter")]
+            sensitive is_open
+
+            has vbox:
+                xalign 0.5
+                spacing 2
+
+                # Icon + NPC dots
+                hbox:
+                    xalign 0.5
+                    spacing 3
+                    text icon size (28 if not is_current else 34)
+                    if len(npcs_here) > 0:
+                        text "·" color "#f472b6" size 14 yalign 1.0
+                    if len(npcs_here) > 1:
+                        text "·" color "#f472b6" size 14 yalign 1.0
+                    if len(npcs_here) > 2:
+                        text "+" color "#f472b6" size 12 yalign 1.0
+
+                # Location label
+                text label:
+                    xalign  0.5
+                    text_align 0.5
+                    size    (13 if not is_current else 14)
+                    color   ("#f472b6" if is_current else ("#e2e8f0" if is_open else "#475569"))
+                    bold    is_current
+
+                # Closed tag
+                if not is_open:
+                    text "closed" size 10 color "#475569" xalign 0.5
+
+        # Current location pulse ring
+        if is_current:
+            frame:
+                xpos  lx - 56
+                ypos  ly - 56
+                xsize 112
+                ysize 112
+                background Frame(Solid("#f472b600"), 14, 14)
+                outline [(2, "#f472b688", 0, 0)]
+                sensitive False
+
+        # NPC avatar row below button
+        if len(npcs_here) > 0:
+            hbox:
+                xpos lx - 40
+                ypos ly + 52
+                spacing 3
+                for npc_id in npcs_here[:4]:
+                    python:
+                        npc = NPC_DATA.get(npc_id, {})
+                        npc_col = "#f472b6"
+                    frame:
+                        background Solid(npc_col + "33")
+                        padding (3, 2)
+                        xsize 18
+                        text npc.get("name", npc_id)[0] size 11 color npc_col xalign 0.5
+
+    # ── Time period selector (bottom right) ──
+    frame:
+        xalign 1.0
+        yalign 1.0
+        xpos   -12
+        ypos   -12
+        background "#07071099"
+        padding    (14, 10)
+        hbox:
+            spacing 6
+            for i, (p_name, p_icon) in enumerate(zip(
+                ["Morning", "Afternoon", "Evening", "Night"],
+                ["☀️",       "🌤️",        "🌇",       "🌙"])):
+                frame:
+                    background ("#f472b622" if time_period == i else "#1e293b44")
+                    padding    (8, 6)
+                    xsize      80
+                    vbox:
+                        xalign 0.5
+                        text p_icon size 18 xalign 0.5
+                        text p_name size 11 color ("#f472b6" if time_period == i else "#475569") xalign 0.5
+
+    # ── Wait / advance time button ──
+    frame:
+        xalign 0.0
+        yalign 1.0
+        xpos   12
+        ypos   -12
+        background "#07071099"
+        padding    (10, 8)
+        hbox:
+            spacing 8
+            textbutton "⏭️ Wait":
+                action [Hide("lc_map"), Jump("sandbox_wait_from_map")]
+                idle_color   "#94a3b8"
+                hover_color  "#f472b6"
+                background   "#1e293b"
+                hover_background "#334155"
+                padding      (12, 8)
+            textbutton "📊 Stats":
+                action ShowScreen("lc_stats_screen")
+                idle_color   "#94a3b8"
+                hover_color  "#60a5fa"
+                background   "#1e293b"
+                hover_background "#334155"
+                padding      (12, 8)
+            textbutton "📓 Diary":
+                action ShowScreen("lc_diary_screen")
+                idle_color   "#94a3b8"
+                hover_color  "#fbbf24"
+                background   "#1e293b"
+                hover_background "#334155"
+                padding      (12, 8)
+            textbutton "💕 Relations":
+                action ShowScreen("lc_rel_screen")
+                idle_color   "#94a3b8"
+                hover_color  "#f472b6"
+                background   "#1e293b"
+                hover_background "#334155"
+                padding      (12, 8)
+
+## ── HUD FOR MAP (different from room HUD) ───────────────────────
+screen hud_map():
+    frame:
+        background "#07071099"
+        padding    (14, 8)
+        xfill      True
+        ypos       0
+        hbox:
+            spacing 18
+            xfill True
+
+            text "💖 LoveCity" color "#f472b6" bold True size 18 yalign 0.5
+
+            null width 8
+
+            # Day & period
+            hbox:
+                spacing 6
+                yalign 0.5
+                text "[time_str()]"             color "#60a5fa" size 14
+                text "Day [time_day]"           color "#475569" size 13
+                if is_weekend():
+                    text "🎉 Weekend"           color "#fbbf24" size 13
+
+            null xfill True
+
+            # Core stats strip
+            hbox:
+                spacing 14
+                yalign 0.5
+                text "💰 $[stat_money]"        color "#34d399" size 14
+                text "⚡ [stat_energy]%"       color "#fbbf24" size 14
+                text "😊 [stat_happiness]%"    color "#f472b6" size 14
+                text "🧠 [stat_intelligence]"  color "#3b82f6" size 14
+
+            null width 8
+
+            textbutton "≡" action ShowScreen("lc_pause_menu") idle_color "#94a3b8" hover_color "#f472b6" background "#1e293b" padding (10, 6)
+
+## ── PAUSE MENU (minimal) ────────────────────────────────────────
+screen lc_pause_menu():
+    modal True
+    zorder 200
+    add "#00000099"
+    frame:
+        background "#07071088"
+        padding    (30, 24)
+        xalign     0.5
+        yalign     0.5
+        xsize      280
+        vbox:
+            spacing 10
+            text "LoveCity" color "#f472b6" bold True size 22 xalign 0.5
+            null height 6
+            textbutton "▶  Continue"          action Hide("lc_pause_menu") xalign 0.5 idle_color "#e2e8f0" hover_color "#f472b6" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "💾  Save"             action [Hide("lc_pause_menu"), ShowMenu("save")] xalign 0.5 idle_color "#e2e8f0" hover_color "#34d399" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "📂  Load"             action [Hide("lc_pause_menu"), ShowMenu("load")] xalign 0.5 idle_color "#e2e8f0" hover_color "#60a5fa" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "⚙️  Preferences"      action [Hide("lc_pause_menu"), ShowMenu("preferences")] xalign 0.5 idle_color "#94a3b8" hover_color "#94a3b8" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            null height 4
+            textbutton "🚪  Main Menu"        action MainMenu() xalign 0.5 idle_color "#475569" hover_color "#ef4444" background "#0f172a" hover_background "#1e293b" padding (14, 9) xminimum 200
