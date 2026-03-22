@@ -16,6 +16,5 @@ define config.has_music = True
 define config.has_sound = True
 define config.has_voice = False
 
-## Auto-forward defaults
-define preferences.afm_time   = 7
-define preferences.afm_enable = False
+## Main menu music (placeholder — uncomment when file exists)
+# define config.main_menu_music = "audio/menu_theme.ogg"
