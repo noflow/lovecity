@@ -25,8 +25,8 @@ define mc = Character("[player_name]",
 define thought = Character(None,
     what_italic   = True,
     what_color    = "#94a3b8",
-    what_prefix   = "[ ",
-    what_suffix   = " ]")
+    what_prefix   = "[[ ",
+    what_suffix   = " ]]")
 
 # ── FAMILY ──────────────────────────────────────────────────────
 define mom = Character("Sarah (Mom)",
