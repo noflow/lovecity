@@ -6,7 +6,7 @@ label start:
     $ player_name = renpy.input("What's your name?", default="Player", length=20).strip() or "Player"
 
     scene bg_bedroom with fade
-    play music "audio/morning_theme.ogg" fadein 2.0 noqueue
+    play music "audio/morning_theme.ogg" fadein 2.0
     stop music fadeout 3.0
 
     # Wake up
@@ -154,7 +154,7 @@ label meet_cora:
 label event_first_afternoon:
     narrator "The afternoon light is different from the morning light."
     narrator "You've been out there. You've seen something of it."
-    add_diary("First full afternoon in LoveCity. Still finding my footing.")
+    $ add_diary("First full afternoon in LoveCity. Still finding my footing.")
     return
 
 

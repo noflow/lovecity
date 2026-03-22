@@ -140,12 +140,12 @@ label event_therapy_nudge:
 label set_background(loc_id, room_id=None):
     python:
         bg_map = {
-            "home":"bg_home","school":"bg_school","cafe":"bg_cafe",
-            "mall":"bg_mall","park":"bg_park","clinic":"bg_clinic",
-            "gym":"bg_gym","office":"bg_office","bar":"bg_bar",
-            "library":"bg_library","salon":"bg_salon","street":"bg_street",
-            "bedroom":"bg_bedroom","kitchen":"bg_kitchen",
-            "livingroom":"bg_livingroom","bathroom":"bg_bathroom",
+            "home":"bg_home", "school":"bg_school", "cafe":"bg_cafe",
+            "mall":"bg_mall", "park":"bg_park", "clinic":"bg_clinic",
+            "gym":"bg_gym", "office":"bg_office", "bar":"bg_bar",
+            "library":"bg_library", "salon":"bg_salon", "street":"bg_street",
+            "bedroom":"bg_bedroom", "kitchen":"bg_kitchen",
+            "livingroom":"bg_livingroom", "bathroom":"bg_bathroom",
             "garden":"bg_garden",
         }
         if room_id and room_id in bg_map:
@@ -154,181 +154,320 @@ label set_background(loc_id, room_id=None):
             bg_key = bg_map[loc_id]
         else:
             bg_key = "bg_default"
+        bg_color = bg_colors.get(bg_key, "#0a0a1e")
     if renpy.loadable("backgrounds/" + bg_key + ".webp"):
         scene Expression("'backgrounds/" + bg_key + ".webp'") with dissolve
     elif renpy.loadable("backgrounds/" + bg_key + ".jpg"):
         scene Expression("'backgrounds/" + bg_key + ".jpg'") with dissolve
     else:
-        scene Expression("Solid(bg_colors.get('" + bg_key + "', '#0a0a1e'))") with dissolve
+        scene Expression("Solid('" + bg_color + "')") with dissolve
     return
 
-## ── HOME ROOM ACTIONS ────────────────────────────────────────────
+## ── HOME ROOM ACTION REGISTRY ────────────────────────────────────
 init python:
     def get_room_actions(room_id):
         return {
-            "bedroom":    [("sleep","💤 Sleep"),("nap","😴 Nap"),("meditate","🧘 Meditate"),("change","👗 Change outfit")],
-            "kitchen":    [("snack","🍎 Snack"),("breakfast","🥣 Breakfast"),("cook","🍳 Cook meal")],
-            "livingroom": [("tv","📺 Watch TV"),("games","🎮 Games"),("relax","😌 Relax")],
-            "bathroom":   [("shower","🚿 Shower"),("glam","💄 Full glam"),("mirror","🪞 Mirror")],
-            "garden":     [("garden","🌿 Garden"),("sit","🪑 Sit outside")],
+            "bedroom":    [("sleep","💤 Sleep"), ("nap","😴 Nap"), ("meditate","🧘 Meditate"), ("change","👗 Change outfit")],
+            "kitchen":    [("snack","🍎 Snack"), ("breakfast","🥣 Breakfast"), ("cook","🍳 Cook meal")],
+            "livingroom": [("tv","📺 Watch TV"), ("games","🎮 Games"), ("relax","😌 Relax")],
+            "bathroom":   [("shower","🚿 Shower"), ("glam","💄 Full glam"), ("mirror","🪞 Mirror")],
+            "garden":     [("garden","🌿 Garden"), ("sit","🪑 Sit outside")],
         }.get(room_id, [])
 
-label action_home_sleep:
-    $ add_stat("energy",100); $ add_stat("happiness",5); $ advance_time(2)
-    "You sleep deeply. Full energy restored."; call check_scheduled_events; return
-label action_home_nap:
-    $ add_stat("energy",40); $ advance_time(1)
-    "A nap. You feel better. +40 energy."; return
-label action_home_meditate:
-    $ add_stat("happiness",10); $ add_stat("energy",5); $ advance_time(1)
-    "Quiet and still. +10 happiness, +5 energy."; return
-label action_home_change:
-    "You look through your wardrobe."; return
-label action_home_snack:
-    $ add_stat("energy",15)
-    "A snack. It helps. +15 energy."; return
-label action_home_breakfast:
-    $ add_stat("energy",35); $ add_stat("happiness",5); $ advance_time(1)
-    "A proper breakfast. +35 energy, +5 happiness."; return
-label action_home_cook:
-    $ add_stat("energy",50); $ add_stat("happiness",10); $ advance_time(1)
-    "A real meal. Worth the time. +50 energy."; return
-label action_home_tv:
-    $ add_stat("happiness",10); $ advance_time(1)
-    "Two episodes. Nothing important. +10 happiness."; return
-label action_home_games:
-    $ add_stat("happiness",20); $ advance_time(1)
-    "An hour vanishes. +20 happiness."; return
-label action_home_relax:
-    $ add_stat("happiness",6); $ add_stat("energy",5)
-    "Just being still for a minute. +6 happiness."; return
-label action_home_shower:
-    $ add_stat("charm",10); $ add_stat("energy",10); $ advance_time(1)
-    "Hot shower. Good pressure. +10 charm, +10 energy."; return
-label action_home_glam:
-    $ add_stat("charm",20); $ advance_time(1)
-    "Full routine. You take your time. +20 charm."; return
-label action_home_mirror:
-    $ add_stat("acceptance",2)
-    "You look. You look for a while."; thought "Not bad."; return
-label action_home_garden:
-    $ add_stat("happiness",10); $ advance_time(1)
-    "An hour with the plants. +10 happiness."; return
-label action_home_sit:
-    $ add_stat("happiness",8)
-    "The garden in the afternoon. The light does something good."; return
-
-## ── LOCATION ACTIONS ─────────────────────────────────────────────
-init python:
     def get_location_actions(loc_id):
         return {
-            "cafe":    [("coffee","☕ Coffee"),("study","📖 Study"),("people","👀 People-watch")],
-            "gym":     [("lift","🏋️ Weights"),("cardio","🏃 Cardio"),("swim","🏊 Swim")],
-            "park":    [("walk","🚶 Walk"),("jog","🏃 Jog"),("sit","🪑 Sit"),("flowers","🌸 Pick flowers")],
-            "library": [("read","📖 Read"),("research","🔬 Research"),("rest","😌 Rest")],
-            "mall":    [("shop","🛍️ Browse"),("food","🍜 Food court"),("arcade","🕹️ Arcade")],
-            "clinic":  [("checkup","🩺 Check-up"),("therapy","🛋️ Therapy")],
-            "bar":     [("drink","🍸 Drink"),("dance","🕺 Dance"),("watch","🎶 Watch DJ")],
-            "school":  [("class","📖 Class"),("studyhall","✏️ Study hall"),("mingle","😊 Mingle")],
-            "salon":   [("haircut","✂️ Haircut"),("makeup","💄 Makeup"),("nails","💅 Nails")],
+            "cafe":    [("coffee","☕ Coffee"), ("study","📖 Study"), ("people","👀 People-watch")],
+            "gym":     [("lift","🏋️ Weights"), ("cardio","🏃 Cardio"), ("swim","🏊 Swim")],
+            "park":    [("walk","🚶 Walk"), ("jog","🏃 Jog"), ("sit","🪑 Sit"), ("flowers","🌸 Pick flowers")],
+            "library": [("read","📖 Read"), ("research","🔬 Research"), ("rest","😌 Rest")],
+            "mall":    [("shop","🛍️ Browse"), ("food","🍜 Food court"), ("arcade","🕹️ Arcade")],
+            "clinic":  [("checkup","🩺 Check-up"), ("therapy","🛋️ Therapy")],
+            "bar":     [("drink","🍸 Drink"), ("dance","🕺 Dance"), ("watch","🎶 Watch DJ")],
+            "school":  [("class","📖 Class"), ("studyhall","✏️ Study hall"), ("mingle","😊 Mingle")],
+            "salon":   [("haircut","✂️ Haircut"), ("makeup","💄 Makeup"), ("nails","💅 Nails")],
         }.get(loc_id, [])
 
+## ── HOME ACTIONS ────────────────────────────────────────────────
+label action_home_sleep:
+    $ add_stat("energy", 100)
+    $ add_stat("happiness", 5)
+    $ advance_time(2)
+    "You sleep deeply. Full energy restored."
+    call check_scheduled_events
+    return
+
+label action_home_nap:
+    $ add_stat("energy", 40)
+    $ advance_time(1)
+    "A nap. You feel better. +40 energy."
+    return
+
+label action_home_meditate:
+    $ add_stat("happiness", 10)
+    $ add_stat("energy", 5)
+    $ advance_time(1)
+    "Quiet and still. +10 happiness, +5 energy."
+    return
+
+label action_home_change:
+    "You look through your wardrobe."
+    return
+
+label action_home_snack:
+    $ add_stat("energy", 15)
+    "A snack. It helps. +15 energy."
+    return
+
+label action_home_breakfast:
+    $ add_stat("energy", 35)
+    $ add_stat("happiness", 5)
+    $ advance_time(1)
+    "A proper breakfast. +35 energy, +5 happiness."
+    return
+
+label action_home_cook:
+    $ add_stat("energy", 50)
+    $ add_stat("happiness", 10)
+    $ advance_time(1)
+    "A real meal. Worth the time. +50 energy."
+    return
+
+label action_home_tv:
+    $ add_stat("happiness", 10)
+    $ advance_time(1)
+    "Two episodes. Nothing important. +10 happiness."
+    return
+
+label action_home_games:
+    $ add_stat("happiness", 20)
+    $ advance_time(1)
+    "An hour vanishes. +20 happiness."
+    return
+
+label action_home_relax:
+    $ add_stat("happiness", 6)
+    $ add_stat("energy", 5)
+    "Just being still for a minute. +6 happiness."
+    return
+
+label action_home_shower:
+    $ add_stat("charm", 10)
+    $ add_stat("energy", 10)
+    $ advance_time(1)
+    "Hot shower. Good pressure. +10 charm, +10 energy."
+    return
+
+label action_home_glam:
+    $ add_stat("charm", 20)
+    $ advance_time(1)
+    "Full routine. You take your time. +20 charm."
+    return
+
+label action_home_mirror:
+    $ add_stat("acceptance", 2)
+    "You look. You look for a while."
+    thought "Not bad."
+    return
+
+label action_home_garden:
+    $ add_stat("happiness", 10)
+    $ advance_time(1)
+    "An hour with the plants. +10 happiness."
+    return
+
+label action_home_sit:
+    $ add_stat("happiness", 8)
+    "The garden in the afternoon. The light does something good."
+    return
+
+## ── LOCATION ACTIONS ────────────────────────────────────────────
 label action_cafe_coffee:
-    $ add_stat("energy",30); $ stat_money -= 5
-    "A good cortado. +30 energy."; return
+    $ add_stat("energy", 30)
+    $ stat_money -= 5
+    "A good cortado. +30 energy."
+    return
+
 label action_cafe_study:
-    $ add_stat("intelligence",3); $ advance_time(1)
-    "The ambient noise helps. +3 intelligence."; return
+    $ add_stat("intelligence", 3)
+    $ advance_time(1)
+    "The ambient noise helps. +3 intelligence."
+    return
+
 label action_cafe_people:
-    $ add_stat("charm",5); $ advance_time(1)
-    "You watch. You learn. +5 charm."; return
+    $ add_stat("charm", 5)
+    $ advance_time(1)
+    "You watch. You learn. +5 charm."
+    return
+
 label action_gym_lift:
-    $ add_stat("fitness",5); $ stat_energy -= 25; $ advance_time(1)
-    "Heavy sets. Tired and great. +5 fitness."; return
+    $ add_stat("fitness", 5)
+    $ stat_energy -= 25
+    $ advance_time(1)
+    "Heavy sets. Tired and great. +5 fitness."
+    return
+
 label action_gym_cardio:
-    $ add_stat("fitness",4); $ add_stat("happiness",5); $ stat_energy -= 20; $ advance_time(1)
-    "Your lungs burn well. +4 fitness."; return
+    $ add_stat("fitness", 4)
+    $ add_stat("happiness", 5)
+    $ stat_energy -= 20
+    $ advance_time(1)
+    "Your lungs burn well. +4 fitness."
+    return
+
 label action_gym_swim:
-    $ add_stat("fitness",4); $ add_stat("happiness",10); $ stat_energy -= 20; $ advance_time(1)
-    "Lap after lap. Meditative. +4 fitness, +10 happiness."; return
+    $ add_stat("fitness", 4)
+    $ add_stat("happiness", 10)
+    $ stat_energy -= 20
+    $ advance_time(1)
+    "Lap after lap. Meditative. +4 fitness, +10 happiness."
+    return
+
 label action_park_walk:
-    $ add_stat("happiness",10); $ add_stat("fitness",2); $ stat_energy -= 10; $ advance_time(1)
-    "Fresh air. Different pace. +10 happiness."; return
+    $ add_stat("happiness", 10)
+    $ add_stat("fitness", 2)
+    $ stat_energy -= 10
+    $ advance_time(1)
+    "Fresh air. Different pace. +10 happiness."
+    return
+
 label action_park_jog:
-    $ add_stat("fitness",5); $ stat_energy -= 20; $ advance_time(1)
-    "Three miles. You'll feel it tomorrow. +5 fitness."; return
+    $ add_stat("fitness", 5)
+    $ stat_energy -= 20
+    $ advance_time(1)
+    "Three miles. You'll feel it tomorrow. +5 fitness."
+    return
+
 label action_park_sit:
-    $ add_stat("happiness",8); $ advance_time(1)
-    "The bench is warm. You watch clouds. +8 happiness."; return
+    $ add_stat("happiness", 8)
+    $ advance_time(1)
+    "The bench is warm. You watch clouds. +8 happiness."
+    return
+
 label action_park_flowers:
     $ add_item("rose")
-    "You pick a rose. It's perfect. [Rose added to inventory]"; return
+    "You pick a rose. It's perfect."
+    return
+
 label action_library_read:
-    $ add_stat("intelligence",5); $ stat_energy -= 15; $ advance_time(2)
-    "Two good hours. +5 intelligence."; return
+    $ add_stat("intelligence", 5)
+    $ stat_energy -= 15
+    $ advance_time(2)
+    "Two good hours. +5 intelligence."
+    return
+
 label action_library_research:
-    $ add_stat("intelligence",8); $ stat_energy -= 25; $ advance_time(3)
-    "Deep dive. Notes fill three pages. +8 intelligence."; return
+    $ add_stat("intelligence", 8)
+    $ stat_energy -= 25
+    $ advance_time(3)
+    "Deep dive. Notes fill three pages. +8 intelligence."
+    return
+
 label action_library_rest:
-    $ add_stat("energy",10); $ advance_time(1)
-    "The armchair in the corner. +10 energy."; return
+    $ add_stat("energy", 10)
+    $ advance_time(1)
+    "The armchair in the corner. +10 energy."
+    return
+
 label action_mall_shop:
-    "You browse. Nothing today, but it passes the time."; return
+    "You browse. Nothing today, but it passes the time."
+    return
+
 label action_mall_food:
-    $ add_stat("energy",25); $ stat_money -= 8; $ advance_time(1)
-    "Food court ramen. Not great, not bad. +25 energy."; return
+    $ add_stat("energy", 25)
+    $ stat_money -= 8
+    $ advance_time(1)
+    "Food court ramen. Not great, not bad. +25 energy."
+    return
+
 label action_mall_arcade:
-    $ add_stat("happiness",15); $ stat_money -= 5; $ advance_time(1)
-    "An hour on the machines. +15 happiness."; return
+    $ add_stat("happiness", 15)
+    $ stat_money -= 5
+    $ advance_time(1)
+    "An hour on the machines. +15 happiness."
+    return
+
 label action_clinic_checkup:
     if stat_money >= 30:
-        $ add_stat("energy",20); $ stat_money -= 30
+        $ add_stat("energy", 20)
+        $ stat_money -= 30
         "The doctor clears you. +20 energy."
     else:
         "You need $30 for a check-up."
     return
+
 label action_clinic_therapy:
     if not flag_met_dr_rivera:
         jump meet_dr_rivera
     else:
         jump therapy_session_regular
     return
+
 label action_bar_drink:
-    $ add_stat("happiness",15); $ stat_money -= 12; $ advance_time(1)
-    "One cocktail, well made. +15 happiness."; return
+    $ add_stat("happiness", 15)
+    $ stat_money -= 12
+    $ advance_time(1)
+    "One cocktail, well made. +15 happiness."
+    return
+
 label action_bar_dance:
-    $ add_stat("happiness",20); $ add_stat("charm",5); $ stat_energy -= 20; $ advance_time(2)
-    "Two hours on the floor. +20 happiness."; return
+    $ add_stat("happiness", 20)
+    $ add_stat("charm", 5)
+    $ stat_energy -= 20
+    $ advance_time(2)
+    "Two hours on the floor. +20 happiness."
+    return
+
 label action_bar_watch:
-    $ add_stat("happiness",15); $ advance_time(1)
-    "The DJ is good. You let the music work. +15 happiness."; return
+    $ add_stat("happiness", 15)
+    $ advance_time(1)
+    "The DJ is good. You let the music work. +15 happiness."
+    return
+
 label action_school_class:
-    $ add_stat("intelligence",5); $ stat_energy -= 20; $ advance_time(3)
-    "Three hours. You pay attention when it matters. +5 intelligence."; return
+    $ add_stat("intelligence", 5)
+    $ stat_energy -= 20
+    $ advance_time(3)
+    "Three hours. You pay attention when it matters. +5 intelligence."
+    return
+
 label action_school_studyhall:
-    $ add_stat("intelligence",3); $ stat_energy -= 10; $ advance_time(1)
-    "Study hall. Focused. +3 intelligence."; return
+    $ add_stat("intelligence", 3)
+    $ stat_energy -= 10
+    $ advance_time(1)
+    "Study hall. Focused. +3 intelligence."
+    return
+
 label action_school_mingle:
-    $ add_stat("charm",5); $ advance_time(1)
-    "Between classes. Better at this than you thought. +5 charm."; return
+    $ add_stat("charm", 5)
+    $ advance_time(1)
+    "Between classes. Better at this than you thought. +5 charm."
+    return
+
 label action_salon_haircut:
     if stat_money >= 40:
-        $ add_stat("charm",8); $ stat_money -= 40; $ advance_time(1)
+        $ add_stat("charm", 8)
+        $ stat_money -= 40
+        $ advance_time(1)
         "The stylist does something right. +8 charm."
     else:
-        "You need $40."
+        "You need $40 for a haircut."
     return
+
 label action_salon_makeup:
     if stat_money >= 30:
-        $ add_stat("charm",10); $ stat_money -= 30; $ advance_time(1)
+        $ add_stat("charm", 10)
+        $ stat_money -= 30
+        $ advance_time(1)
         "You look in the mirror. Better. +10 charm."
     else:
-        "You need $30."
+        "You need $30 for makeup."
     return
+
 label action_salon_nails:
     if stat_money >= 25:
-        $ add_stat("charm",6); $ stat_money -= 25
+        $ add_stat("charm", 6)
+        $ stat_money -= 25
         "Small thing. Big impact. +6 charm."
     else:
-        "You need $25."
+        "You need $25 for nails."
     return
