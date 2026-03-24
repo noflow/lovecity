@@ -94,7 +94,9 @@ screen hud():
             null width 12
 
             # Menu button
-            textbutton "≡" action ShowScreen("lc_menu") style "lc_button_small"
+            textbutton "≡":
+                action ShowScreen("lc_menu")
+                style "lc_button_small"
 
 ## ── MAIN MENU / PAUSE ───────────────────────────────────────────
 screen lc_menu():
@@ -107,14 +109,28 @@ screen lc_menu():
         spacing 12
         text "LoveCity" style "lc_header" xalign 0.5
         null height 8
-        textbutton "📖 Continue"   action Return() style "lc_button" xalign 0.5
-        textbutton "💾 Save Game"  action ShowScreen("save")  style "lc_button" xalign 0.5
-        textbutton "📂 Load Game"  action ShowScreen("load")  style "lc_button" xalign 0.5
-        textbutton "📊 Stats"      action ShowScreen("lc_stats_screen") style "lc_button" xalign 0.5
-        textbutton "📓 Diary"      action ShowScreen("lc_diary_screen") style "lc_button" xalign 0.5
-        textbutton "⚙️ Preferences" action ShowScreen("preferences") style "lc_button" xalign 0.5
+        textbutton "📖 Continue":
+            action Return()
+            style "lc_button" xalign 0.5
+        textbutton "💾 Save Game":
+            action ShowScreen("save")
+            style "lc_button" xalign 0.5
+        textbutton "📂 Load Game":
+            action ShowScreen("load")
+            style "lc_button" xalign 0.5
+        textbutton "📊 Stats":
+            action ShowScreen("lc_stats_screen")
+            style "lc_button" xalign 0.5
+        textbutton "📓 Diary":
+            action ShowScreen("lc_diary_screen")
+            style "lc_button" xalign 0.5
+        textbutton "⚙️ Preferences":
+            action ShowScreen("preferences")
+            style "lc_button" xalign 0.5
         null height 8
-        textbutton "🚪 Main Menu"  action MainMenu() style "lc_button_small" xalign 0.5
+        textbutton "🚪 Main Menu":
+            action MainMenu()
+            style "lc_button_small" xalign 0.5
 
 ## ── STATS SCREEN ────────────────────────────────────────────────
 screen lc_stats_screen():
@@ -132,7 +148,9 @@ screen lc_stats_screen():
             hbox:
                 text "📊 Stats — [player_name]" style "lc_header"
                 null xfill True
-                textbutton "✕" action HideScreen("lc_stats_screen") style "lc_button_small"
+                textbutton "✕":
+                    action HideScreen("lc_stats_screen")
+                    style "lc_button_small"
             null height 8
 
             # Core stats
@@ -176,7 +194,9 @@ screen lc_rel_screen():
             hbox:
                 text "💕 Relationships" style "lc_header"
                 null xfill True
-                textbutton "✕" action HideScreen("lc_rel_screen") style "lc_button_small"
+                textbutton "✕":
+                    action HideScreen("lc_rel_screen")
+                    style "lc_button_small"
             null height 6
             viewport:
                 scrollbars "vertical"
@@ -225,7 +245,9 @@ screen lc_diary_screen():
             hbox:
                 text "📓 Diary" style "lc_header"
                 null xfill True
-                textbutton "✕" action HideScreen("lc_diary_screen") style "lc_button_small"
+                textbutton "✕":
+                    action HideScreen("lc_diary_screen")
+                    style "lc_button_small"
             viewport:
                 scrollbars "vertical"
                 mousewheel True

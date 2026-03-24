@@ -38,7 +38,30 @@ screen lc_map():
 
     add Solid("#00000055")
 
-    use hud_map()
+    ## ── HUD bar (inlined — avoids use/subscreen scoping issues) ─────
+    frame:
+        background "#07071099"
+        padding    (14, 8)
+        xfill      True
+        ypos       0
+        hbox:
+            spacing 18
+            xfill True
+            text "💖 LoveCity" color "#f472b6" bold True size 18 yalign 0.5
+            null width 8
+            text "[time_str()]"         color "#60a5fa" size 14 yalign 0.5
+            text "Day [time_day]"       color "#475569" size 13 yalign 0.5
+            null xfill True
+            text "💰 $[stat_money]"     color "#34d399" size 14 yalign 0.5
+            text "⚡ [stat_energy]%"    color "#fbbf24" size 14 yalign 0.5
+            text "😊 [stat_happiness]%" color "#f472b6" size 14 yalign 0.5
+            null width 8
+            textbutton "≡":
+                action ShowScreen("lc_pause_menu")
+                text_color       "#94a3b8"
+                text_hover_color "#f472b6"
+                background       "#1e293b"
+                padding          (10, 6)
 
     # Location buttons
     for loc_id, label, icon, lx, ly in MAP_LOCATIONS:
@@ -165,26 +188,6 @@ screen lc_map():
                 hover_background "#334155"
                 padding          (12, 8)
 
-## ── HUD FOR MAP ─────────────────────────────────────────────────
-screen hud_map():
-    frame:
-        background "#07071099"
-        padding    (14, 8)
-        xfill      True
-        ypos       0
-        hbox:
-            spacing 18
-            xfill True
-            text "💖 LoveCity" color "#f472b6" bold True size 18 yalign 0.5
-            null width 8
-            text "[time_str()]"           color "#60a5fa" size 14 yalign 0.5
-            text "Day [time_day]"         color "#475569" size 13 yalign 0.5
-            null xfill True
-            text "💰 $[stat_money]"       color "#34d399" size 14 yalign 0.5
-            text "⚡ [stat_energy]%"      color "#fbbf24" size 14 yalign 0.5
-            text "😊 [stat_happiness]%"   color "#f472b6" size 14 yalign 0.5
-            null width 8
-            textbutton "≡" action ShowScreen("lc_pause_menu") text_color "#94a3b8" text_hover_color "#f472b6" background "#1e293b" padding (10, 6)
 
 ## ── PAUSE MENU ──────────────────────────────────────────────────
 screen lc_pause_menu():
@@ -201,9 +204,34 @@ screen lc_pause_menu():
             spacing 10
             text "LoveCity" color "#f472b6" bold True size 22 xalign 0.5
             null height 6
-            textbutton "▶  Continue" action HideScreen("lc_pause_menu") xalign 0.5 text_color "#e2e8f0" text_hover_color "#f472b6" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
-            textbutton "💾  Save" action [HideScreen("lc_pause_menu"), ShowScreen("save")] xalign 0.5 text_color "#e2e8f0" text_hover_color "#34d399" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
-            textbutton "📂  Load" action [HideScreen("lc_pause_menu"), ShowScreen("load")] xalign 0.5 text_color "#e2e8f0" text_hover_color "#60a5fa" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
-            textbutton "⚙️  Preferences" action [HideScreen("lc_pause_menu"), ShowScreen("preferences")] xalign 0.5 text_color "#94a3b8" text_hover_color "#94a3b8" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "▶  Continue":
+                action HideScreen("lc_pause_menu")
+                xalign 0.5
+                text_color "#e2e8f0" text_hover_color "#f472b6"
+                background "#1e293b" hover_background "#334155"
+                padding (14, 9) xminimum 200
+            textbutton "💾  Save":
+                action [HideScreen("lc_pause_menu"), ShowMenu("save")]
+                xalign 0.5
+                text_color "#e2e8f0" text_hover_color "#34d399"
+                background "#1e293b" hover_background "#334155"
+                padding (14, 9) xminimum 200
+            textbutton "📂  Load":
+                action [HideScreen("lc_pause_menu"), ShowMenu("load")]
+                xalign 0.5
+                text_color "#e2e8f0" text_hover_color "#60a5fa"
+                background "#1e293b" hover_background "#334155"
+                padding (14, 9) xminimum 200
+            textbutton "⚙️  Preferences":
+                action [HideScreen("lc_pause_menu"), ShowMenu("preferences")]
+                xalign 0.5
+                text_color "#94a3b8" text_hover_color "#94a3b8"
+                background "#1e293b" hover_background "#334155"
+                padding (14, 9) xminimum 200
             null height 4
-            textbutton "🚪  Main Menu" action MainMenu() xalign 0.5 text_color "#475569" text_hover_color "#ef4444" background "#0f172a" hover_background "#1e293b" padding (14, 9) xminimum 200
+            textbutton "🚪  Main Menu":
+                action MainMenu()
+                xalign 0.5
+                text_color "#475569" text_hover_color "#ef4444"
+                background "#0f172a" hover_background "#1e293b"
+                padding (14, 9) xminimum 200
