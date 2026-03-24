@@ -23,7 +23,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
             text loc_name color "#f472b6" bold True size 18 yalign 0.5
             text "[time_str()]" color "#60a5fa" size 14 yalign 0.5
 
-    # Map button top-right
+    # Navigation buttons top-right
     frame:
         xalign  1.0
         ypos    50
@@ -32,13 +32,22 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
         padding    (10, 7)
         hbox:
             spacing 8
+            # When in a home room, show "← Rooms" to go back to room picker
+            if loc_id == "home":
+                textbutton "🏠 Rooms":
+                    action Function(renpy.return_statement, ("goto_home_hub", None))
+                    text_color       "#94a3b8"
+                    text_hover_color "#f472b6"
+                    background       "#1e293b"
+                    hover_background "#334155"
+                    padding          (12, 7)
             textbutton "🗺️ Map":
-                action Return(("goto_map", None))
-                text_color  "#94a3b8"
+                action Function(renpy.return_statement, ("goto_map", None))
+                text_color       "#94a3b8"
                 text_hover_color "#60a5fa"
-                background   "#1e293b"
+                background       "#1e293b"
                 hover_background "#334155"
-                padding      (12, 7)
+                padding          (12, 7)
 
     # NPC characters present
     if npcs_here:
@@ -63,7 +72,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                     padding (0, 0)
 
                     button:
-                        action  Return(("talk", npc_id))
+                        action  Function(renpy.return_statement, ("talk", npc_id))
                         xfill   True
                         yfill   True
 
@@ -118,7 +127,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                 if loc_actions:
                     for action_id, action_label in loc_actions:
                         textbutton "[action_label]":
-                            action  Return(("action", action_id))
+                            action  Function(renpy.return_statement, ("action", action_id))
                             text_color       "#94a3b8"
                             text_hover_color "#e2e8f0"
                             background       "#1e293b"
@@ -128,7 +137,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                 null xfill True
 
                 textbutton "⏭️ Wait":
-                    action  Return(("wait", None))
+                    action  Function(renpy.return_statement, ("wait", None))
                     text_color       "#94a3b8"
                     text_hover_color "#fbbf24"
                     background       "#1e293b55"
@@ -170,7 +179,7 @@ screen lc_home_hub():
         background "#07071088"
         padding    (10, 7)
         textbutton "🗺️ Map":
-            action Return(("goto_map", None))
+            action Function(renpy.return_statement, ("goto_map", None))
             text_color       "#94a3b8"
             text_hover_color "#60a5fa"
             background       "#1e293b"
@@ -203,7 +212,7 @@ screen lc_home_hub():
                     padding (0, 0)
 
                     button:
-                        action  Return(("enter_room", room_id))
+                        action  Function(renpy.return_statement, ("enter_room", room_id))
                         xfill   True
                         yfill   True
 

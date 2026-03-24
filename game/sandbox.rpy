@@ -60,6 +60,8 @@ label sandbox_room_loop:
     elif result[0] == "wait":
         call sandbox_wait
         jump sandbox_room_loop
+    elif result[0] == "goto_home_hub":
+        jump sandbox_home_hub
     elif result[0] == "goto_map":
         jump sandbox_loop
     jump sandbox_room_loop
