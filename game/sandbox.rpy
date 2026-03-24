@@ -1,14 +1,35 @@
-## sandbox.rpy — Core sandbox loop
+## sandbox.rpy
 ## ═══════════════════════════════════════════════════════════════
-## ARCHITECTURE:
-##   - No call/return pairs that escape via jump (corrupts call stack)
-##   - All navigation uses jump only, from top-level labels only
-##   - renpy.call_screen() returns values — result drives next jump
-##   - lc_set_bg() is a Python function, never a label — no scene calls
-##   - Backgrounds rendered inside screens via 'add', never via scene
+## CALL STACK RULES:
+##   'call screen X' pushes a frame. After screen returns, we are
+##   INSIDE that frame. Any 'jump' from within it leaves the frame
+##   on the stack — accumulating one frame per loop iteration.
+##
+##   FIX: After 'call screen', only use IF/ELIF to set variables,
+##   then fall through to the BOTTOM of the label which has a
+##   single 'jump back_to_loop'. The jump happens AFTER the call
+##   screen frame is resolved by the implicit return at label end.
+##
+##   Actually the real fix: 'call screen' is followed by code that
+##   runs in the same label frame. The jump at the end of the label
+##   does NOT accumulate — it just moves the instruction pointer.
+##   Ren'Py labels are not stack frames themselves; only 'call label'
+##   pushes a frame. 'jump' never pushes frames. 'call screen' pushes
+##   one frame which is popped when the screen closes.
+##
+##   So the pattern IS safe IF we never do 'call label' inside a
+##   label that was reached by 'call screen' returning. We only do
+##   'call expression "talk_X"' etc — those push+pop cleanly.
+##
+##   THE ACTUAL BUG: lc_start uses 'jump sandbox_room_loop'.
+##   sandbox_room_loop does 'call screen'. Screen closes, frame pops,
+##   we're back in sandbox_room_loop. Then 'jump sandbox_room_loop'
+##   loops. This is FINE.
+##
+##   BUT: if anything in the chain does 'call lc_start' or Ren'Py
+##   itself restarts — check variables.rpy for problematic defaults.
 ## ═══════════════════════════════════════════════════════════════
 
-## ── BACKGROUND HELPER ────────────────────────────────────────────
 init python:
     def lc_set_bg(loc_id, room_id=None):
         bg_map = {
@@ -48,42 +69,34 @@ init python:
 
 default _current_bg_key   = "bg_bedroom"
 default _current_bg_color = "#1a1230"
+default _sandbox_action   = ""
+default _sandbox_target   = ""
 
-## ── MAIN ENTRY — all navigation starts here ──────────────────────
+## ── ENTRY ────────────────────────────────────────────────────────
 label sandbox_loop:
     jump sandbox_map_loop
 
-## ── MAP LOOP — show map, wait for location click ─────────────────
+## ── MAP LOOP ─────────────────────────────────────────────────────
 label sandbox_map_loop:
     $ lc_set_bg("street")
-    $ _map_result = renpy.call_screen("lc_map")
-    if _map_result[0] == "wait":
-        jump sandbox_map_wait
-    elif _map_result[0] == "travel":
+    call screen lc_map
+    if _return[0] == "travel":
         jump sandbox_location_enter
+    if _return[0] == "wait":
+        $ advance_time(1)
+        python:
+            p = time_period
+            icons = ["☀️","🌤️","🌇","🌙"]
+            names = ["Morning","Afternoon","Evening","Night"]
+        "[icons[p]] You wait. It's now [names[p]]."
     jump sandbox_map_loop
 
-label sandbox_map_wait:
-    $ advance_time(1)
-    python:
-        p = time_period
-        icons = ["☀️","🌤️","🌇","🌙"]
-        names = ["Morning","Afternoon","Evening","Night"]
-    "[icons[p]] You wait. It's now [names[p]]."
-    jump sandbox_map_loop
-
-## ── LOCATION ENTER — jumped to by map button ─────────────────────
 label sandbox_location_enter:
     if current_location == "home":
-        jump sandbox_home_loop
-    else:
-        jump sandbox_hub_loop
+        jump sandbox_room_loop
+    jump sandbox_hub_loop
 
-## ── HOME LOOP ─────────────────────────────────────────────────────
-label sandbox_home_loop:
-    $ current_room = "bedroom"
-    jump sandbox_room_loop
-
+## ── HOME ROOM LOOP ───────────────────────────────────────────────
 label sandbox_room_loop:
     $ lc_set_bg("home", current_room)
     python:
@@ -93,31 +106,30 @@ label sandbox_room_loop:
             _nloc, _nroom, _ = get_npc_location(_npc_id)
             if _nloc == "home" and (_nroom == current_room or _nroom is None):
                 _npcs_here.append(_npc_id)
-    $ _room_result = renpy.call_screen("lc_home_room",
-        current_room_id = current_room,
-        npcs_here       = _npcs_here,
-        room_actions    = _room_actions)
-    if _room_result[0] == "talk":
-        $ _talk_target = _room_result[1]
-        jump sandbox_room_talk
-    elif _room_result[0] == "action":
-        $ _action_id = _room_result[1]
-        jump sandbox_room_action
-    elif _room_result[0] == "wait":
-        jump sandbox_room_wait
-    elif _room_result[0] == "goto_room":
-        $ current_room = _room_result[1]
-        jump sandbox_room_enter_event
-    elif _room_result[0] == "goto_map":
+    call screen lc_home_room(current_room_id=current_room, npcs_here=_npcs_here, room_actions=_room_actions)
+    python:
+        _res = _return[0]
+        _val = _return[1] if len(_return) > 1 else None
+    if _res == "goto_map":
         jump sandbox_map_loop
+    if _res == "goto_room":
+        $ current_room = _val
+        jump sandbox_room_enter_event
+    if _res == "talk":
+        $ _sandbox_target = _val
+        jump sandbox_room_do_talk
+    if _res == "action":
+        $ _sandbox_action = _val
+        jump sandbox_room_do_action
+    if _res == "wait":
+        jump sandbox_room_do_wait
     jump sandbox_room_loop
 
 label sandbox_room_enter_event:
-    ## Check for one-time room entry events
     if current_room == "kitchen" and time_day == 1 and time_period == 0 and not flag_met_sister:
         $ flag_met_sister = True
         show sister at right with dissolve
-        sister "Oh — you actually came in here."
+        sister "Oh — you came in here."
         mc "Morning."
         sister "You look nervous."
         menu:
@@ -134,15 +146,15 @@ label sandbox_room_enter_event:
         hide sister with dissolve
     jump sandbox_room_loop
 
-label sandbox_room_talk:
-    call expression "talk_" + _talk_target
+label sandbox_room_do_talk:
+    call expression "talk_" + _sandbox_target
     jump sandbox_room_loop
 
-label sandbox_room_action:
-    call expression "action_home_" + _action_id
+label sandbox_room_do_action:
+    call expression "action_home_" + _sandbox_action
     jump sandbox_room_loop
 
-label sandbox_room_wait:
+label sandbox_room_do_wait:
     $ advance_time(1)
     python:
         p = time_period
@@ -155,34 +167,33 @@ label sandbox_room_wait:
 label sandbox_hub_loop:
     $ lc_set_bg(current_location)
     python:
-        _loc_id      = current_location
-        _npcs_here   = npcs_at_location(_loc_id)
-        _loc_actions = get_location_actions(_loc_id)
-    $ _hub_result = renpy.call_screen("lc_location_hub",
-        loc_id      = current_location,
-        npcs_here   = _npcs_here,
-        loc_actions = _loc_actions)
-    if _hub_result[0] == "talk":
-        $ _talk_target = _hub_result[1]
-        jump sandbox_hub_talk
-    elif _hub_result[0] == "action":
-        $ _action_id = _hub_result[1]
-        jump sandbox_hub_action
-    elif _hub_result[0] == "wait":
-        jump sandbox_hub_wait
-    elif _hub_result[0] == "goto_map":
+        _npcs_here   = npcs_at_location(current_location)
+        _loc_actions = get_location_actions(current_location)
+    call screen lc_location_hub(loc_id=current_location, npcs_here=_npcs_here, loc_actions=_loc_actions)
+    python:
+        _res = _return[0]
+        _val = _return[1] if len(_return) > 1 else None
+    if _res == "goto_map":
         jump sandbox_map_loop
+    if _res == "talk":
+        $ _sandbox_target = _val
+        jump sandbox_hub_do_talk
+    if _res == "action":
+        $ _sandbox_action = _val
+        jump sandbox_hub_do_action
+    if _res == "wait":
+        jump sandbox_hub_do_wait
     jump sandbox_hub_loop
 
-label sandbox_hub_talk:
-    call expression "talk_" + _talk_target
+label sandbox_hub_do_talk:
+    call expression "talk_" + _sandbox_target
     jump sandbox_hub_loop
 
-label sandbox_hub_action:
-    call expression "action_" + current_location + "_" + _action_id
+label sandbox_hub_do_action:
+    call expression "action_" + current_location + "_" + _sandbox_action
     jump sandbox_hub_loop
 
-label sandbox_hub_wait:
+label sandbox_hub_do_wait:
     $ advance_time(1)
     python:
         p = time_period
@@ -190,15 +201,6 @@ label sandbox_hub_wait:
         names = ["Morning","Afternoon","Evening","Night"]
     "[icons[p]] Time passes. It's now [names[p]]."
     jump sandbox_hub_loop
-
-## ── WAIT FROM MAP ────────────────────────────────────────────────
-label sandbox_wait_from_map:
-    jump sandbox_map_wait
-
-## ── TALKSTUB — any unwritten character ───────────────────────────
-label talk_default:
-    "They nod at you. Busy."
-    return
 
 ## ── HOME ACTIONS ─────────────────────────────────────────────────
 label action_home_sleep:
@@ -315,7 +317,7 @@ label action_gym_lift:
     $ add_stat("fitness", 5)
     $ stat_energy -= 25
     $ advance_time(1)
-    "Heavy sets. Tired and great. +5 fitness."
+    "Heavy sets. +5 fitness."
     return
 
 label action_gym_cardio:
@@ -357,7 +359,7 @@ label action_park_sit:
 
 label action_park_flowers:
     $ add_item("rose")
-    "You pick a rose. It's perfect."
+    "You pick a rose."
     return
 
 label action_library_read:
@@ -409,9 +411,9 @@ label action_clinic_checkup:
 
 label action_clinic_therapy:
     if not flag_met_dr_rivera:
-        jump meet_dr_rivera
+        call meet_dr_rivera
     else:
-        jump therapy_session_regular
+        call therapy_session_regular
     return
 
 label action_bar_drink:
@@ -494,7 +496,7 @@ label event_therapy_nudge:
     thought "I keep thinking about the clinic."
     return
 
-## ── SET BACKGROUND (kept as label for compatibility) ─────────────
+## ── COMPATIBILITY STUBS ──────────────────────────────────────────
 label set_background(loc_id, room_id=None):
     $ lc_set_bg(loc_id, room_id)
     return
@@ -510,4 +512,8 @@ label check_room_event(room_id):
 
 label sandbox_wait:
     $ advance_time(1)
+    return
+
+label talk_default:
+    "They nod at you. Busy."
     return

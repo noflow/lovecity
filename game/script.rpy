@@ -1,6 +1,7 @@
 ## script.rpy — Entry point for LoveCity
-## Ren'Py requires label start to exist here.
-## All actual content is in game/story/ and game/sandbox.rpy
 
 label start:
+    ## If intro already done (e.g. returned here by accident), go straight to sandbox
+    if flag_intro_done:
+        jump sandbox_room_loop
     jump lc_start
