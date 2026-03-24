@@ -19,7 +19,6 @@ label sandbox_wait_from_map:
 
 ## ── ENTER LOCATION (called by map click) ────────────────────────
 label sandbox_location_enter:
-    call set_background(current_location)
     if current_location == "home":
         jump sandbox_home_hub
     else:
@@ -32,9 +31,9 @@ label sandbox_home_hub:
     jump sandbox_room_loop
 
 ## ── HOME ROOM LOOP ──────────────────────────────────────────────
-## The main home loop — shows lc_home_room screen with room nav bar
 label sandbox_room_loop:
-    call set_background("home", current_room)
+    ## lc_set_bg sets _current_bg_key/_current_bg_color used by the screen
+    $ lc_set_bg("home", current_room)
     python:
         room_actions = get_room_actions(current_room)
         npcs_here    = []
@@ -57,9 +56,7 @@ label sandbox_room_loop:
         call sandbox_wait
         jump sandbox_room_loop
     elif result[0] == "goto_room":
-        ## Switch room — set background then check entry event ONCE before showing screen
         $ current_room = result[1]
-        call set_background("home", current_room)
         call check_room_event(current_room)
         jump sandbox_room_loop
     elif result[0] == "goto_map":
@@ -68,6 +65,7 @@ label sandbox_room_loop:
 
 ## ── LOCATION HUB LOOP ───────────────────────────────────────────
 label sandbox_hub_loop:
+    $ lc_set_bg(current_location)
     python:
         loc_id      = current_location
         npcs_here   = npcs_at_location(loc_id)
@@ -139,8 +137,9 @@ label event_therapy_nudge:
     return
 
 ## ── SET BACKGROUND ──────────────────────────────────────────────
-label set_background(loc_id, room_id=None):
-    python:
+## NEVER uses `scene` — uses renpy.show which does not reset the stack.
+init python:
+    def lc_set_bg(loc_id, room_id=None):
         bg_map = {
             "home":"bg_home", "school":"bg_school", "cafe":"bg_cafe",
             "mall":"bg_mall", "park":"bg_park", "clinic":"bg_clinic",
@@ -157,12 +156,14 @@ label set_background(loc_id, room_id=None):
         else:
             bg_key = "bg_default"
         bg_color = bg_colors.get(bg_key, "#0a0a1e")
-    if renpy.loadable("backgrounds/" + bg_key + ".webp"):
-        scene Expression("'backgrounds/" + bg_key + ".webp'") with dissolve
-    elif renpy.loadable("backgrounds/" + bg_key + ".jpg"):
-        scene Expression("'backgrounds/" + bg_key + ".jpg'") with dissolve
-    else:
-        scene Expression("Solid('" + bg_color + "')") with dissolve
+        store._current_bg_color = bg_color
+        store._current_bg_key   = bg_key
+
+default _current_bg_color = "#0a0a1e"
+default _current_bg_key   = "bg_default"
+
+label set_background(loc_id, room_id=None):
+    $ lc_set_bg(loc_id, room_id)
     return
 
 ## ── HOME ROOM ACTION REGISTRY ────────────────────────────────────

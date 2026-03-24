@@ -6,6 +6,17 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
     tag hub
     zorder 50
 
+    # Background — rendered inside screen, never uses scene
+    python:
+        bg_key   = _current_bg_key
+        bg_color = _current_bg_color
+    if renpy.loadable("backgrounds/" + bg_key + ".webp"):
+        add ("backgrounds/" + bg_key + ".webp") fit "cover"
+    elif renpy.loadable("backgrounds/" + bg_key + ".jpg"):
+        add ("backgrounds/" + bg_key + ".jpg") fit "cover"
+    else:
+        add Solid(bg_color)
+
     python:
         loc_info = LOCATIONS.get(loc_id, {"name": loc_id, "icon": "📍"})
         loc_name = loc_info["name"]
@@ -133,6 +144,17 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
 screen lc_home_room(current_room_id, npcs_here, room_actions):
     tag hub
     zorder 50
+
+    # Background — rendered inside screen, never uses scene
+    python:
+        bg_key   = _current_bg_key
+        bg_color = _current_bg_color
+    if renpy.loadable("backgrounds/" + bg_key + ".webp"):
+        add ("backgrounds/" + bg_key + ".webp") fit "cover"
+    elif renpy.loadable("backgrounds/" + bg_key + ".jpg"):
+        add ("backgrounds/" + bg_key + ".jpg") fit "cover"
+    else:
+        add Solid(bg_color)
 
     python:
         room_info = HOME_ROOMS.get(current_room_id, {"name": current_room_id, "icon": "🚪"})
