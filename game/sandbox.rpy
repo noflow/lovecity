@@ -1,202 +1,196 @@
-## sandbox.rpy — Core sandbox loop (clickable map edition)
+## sandbox.rpy — Core sandbox loop
+## ═══════════════════════════════════════════════════════════════
+## ARCHITECTURE:
+##   - No call/return pairs that escape via jump (corrupts call stack)
+##   - All navigation uses jump only, from top-level labels only
+##   - renpy.call_screen() returns values — result drives next jump
+##   - lc_set_bg() is a Python function, never a label — no scene calls
+##   - Backgrounds rendered inside screens via 'add', never via scene
 ## ═══════════════════════════════════════════════════════════════
 
-## ── ENTRY POINT ─────────────────────────────────────────────────
-label sandbox_loop:
-    call show_map
-    jump sandbox_loop
-
-## ── SHOW MAP ────────────────────────────────────────────────────
-label show_map:
-    scene Expression("Solid('#0a0f1a')") with dissolve
-    $ renpy.call_screen("lc_map")
-    return
-
-label sandbox_wait_from_map:
-    call sandbox_wait
-    call show_map
-    return
-
-## ── ENTER LOCATION (called by map click) ────────────────────────
-label sandbox_location_enter:
-    if current_location == "home":
-        jump sandbox_home_hub
-    else:
-        jump sandbox_hub_loop
-
-## ── HOME HUB ────────────────────────────────────────────────────
-## Player always enters home in their bedroom
-label sandbox_home_hub:
-    $ current_room = "bedroom"
-    jump sandbox_room_loop
-
-## ── HOME ROOM LOOP ──────────────────────────────────────────────
-label sandbox_room_loop:
-    ## lc_set_bg sets _current_bg_key/_current_bg_color used by the screen
-    $ lc_set_bg("home", current_room)
-    python:
-        room_actions = get_room_actions(current_room)
-        npcs_here    = []
-        for npc_id in ["mom", "sister"]:
-            npc_loc, npc_room, _ = get_npc_location(npc_id)
-            if npc_loc == "home" and (npc_room == current_room or npc_room is None):
-                npcs_here.append(npc_id)
-    $ result = renpy.call_screen("lc_home_room",
-        current_room_id = current_room,
-        npcs_here       = npcs_here,
-        room_actions    = room_actions)
-    if result[0] == "talk":
-        call expression "talk_" + result[1]
-        jump sandbox_room_loop
-    elif result[0] == "action":
-        call expression "action_home_" + result[1]
-        call check_scheduled_events
-        jump sandbox_room_loop
-    elif result[0] == "wait":
-        call sandbox_wait
-        jump sandbox_room_loop
-    elif result[0] == "goto_room":
-        $ current_room = result[1]
-        call check_room_event(current_room)
-        jump sandbox_room_loop
-    elif result[0] == "goto_map":
-        jump sandbox_loop
-    jump sandbox_room_loop
-
-## ── LOCATION HUB LOOP ───────────────────────────────────────────
-label sandbox_hub_loop:
-    $ lc_set_bg(current_location)
-    python:
-        loc_id      = current_location
-        npcs_here   = npcs_at_location(loc_id)
-        loc_actions = get_location_actions(loc_id)
-    call check_location_event(current_location)
-    $ result = renpy.call_screen("lc_location_hub",
-        loc_id       = current_location,
-        npcs_here    = npcs_here,
-        loc_actions  = loc_actions)
-    if result[0] == "talk":
-        call expression "talk_" + result[1]
-        jump sandbox_hub_loop
-    elif result[0] == "action":
-        call expression "action_" + current_location + "_" + result[1]
-        call check_scheduled_events
-        jump sandbox_hub_loop
-    elif result[0] == "wait":
-        call sandbox_wait
-        jump sandbox_hub_loop
-    elif result[0] == "goto_map":
-        jump sandbox_loop
-    jump sandbox_hub_loop
-
-## ── WAIT ────────────────────────────────────────────────────────
-label sandbox_wait:
-    $ advance_time(1)
-    python:
-        p_icons = ["☀️", "🌤️", "🌇", "🌙"]
-        p_names = ["Morning", "Afternoon", "Evening", "Night"]
-        p = time_period
-    "[p_icons[p]] You wait a while. It's now [p_names[p]]."
-    call check_scheduled_events
-    return
-
-## ── EVENT CHECKS ────────────────────────────────────────────────
-label check_location_event(loc_id):
-    python:
-        event_key = "loc_evt_" + loc_id + "_d" + str(time_day) + "_p" + str(time_period)
-        already_fired = getattr(store, event_key, False)
-        setattr(store, event_key, True)
-    if loc_id == "street" and not flag_met_cora and flag_met_mom and not already_fired:
-        call meet_cora
-    return
-
-label check_scheduled_events:
-    if time_day == 1 and time_period == 1 and not flag_first_day_done:
-        $ flag_first_day_done = True
-        call event_first_afternoon
-    if time_day >= 3 and not flag_therapy_started and time_period == 0:
-        call event_therapy_nudge
-    return
-
-label check_room_event(room_id):
-    if room_id == "kitchen" and time_day == 1 and time_period == 0 and not flag_met_sister:
-        call meet_sister_intro
-    return
-
-## ── STORY EVENTS ────────────────────────────────────────────────
-label event_first_afternoon:
-    "[time_str()] The first day is underway."
-    thought "There's a lot of city out there. No rush."
-    $ add_diary("Made it through the first morning. The city is bigger than I expected.")
-    return
-
-label event_therapy_nudge:
-    if current_location == "home":
-        thought "I keep thinking about the clinic. Dr. Rivera's name keeps coming up."
-        thought "Maybe I should go."
-    return
-
-## ── SET BACKGROUND ──────────────────────────────────────────────
-## NEVER uses `scene` — uses renpy.show which does not reset the stack.
+## ── BACKGROUND HELPER ────────────────────────────────────────────
 init python:
     def lc_set_bg(loc_id, room_id=None):
         bg_map = {
-            "home":"bg_home", "school":"bg_school", "cafe":"bg_cafe",
-            "mall":"bg_mall", "park":"bg_park", "clinic":"bg_clinic",
-            "gym":"bg_gym", "office":"bg_office", "bar":"bg_bar",
-            "library":"bg_library", "salon":"bg_salon", "street":"bg_street",
-            "bedroom":"bg_bedroom", "kitchen":"bg_kitchen",
-            "livingroom":"bg_livingroom", "bathroom":"bg_bathroom",
+            "home":"bg_home","school":"bg_school","cafe":"bg_cafe",
+            "mall":"bg_mall","park":"bg_park","clinic":"bg_clinic",
+            "gym":"bg_gym","office":"bg_office","bar":"bg_bar",
+            "library":"bg_library","salon":"bg_salon","street":"bg_street",
+            "bedroom":"bg_bedroom","kitchen":"bg_kitchen",
+            "livingroom":"bg_livingroom","bathroom":"bg_bathroom",
             "garden":"bg_garden",
         }
-        if room_id and room_id in bg_map:
-            bg_key = bg_map[room_id]
-        elif loc_id in bg_map:
-            bg_key = bg_map[loc_id]
-        else:
-            bg_key = "bg_default"
-        bg_color = bg_colors.get(bg_key, "#0a0a1e")
-        store._current_bg_color = bg_color
-        store._current_bg_key   = bg_key
+        key = bg_map.get(room_id or loc_id, bg_map.get(loc_id, "bg_default"))
+        store._current_bg_key   = key
+        store._current_bg_color = bg_colors.get(key, "#0a0a1e")
 
-default _current_bg_color = "#0a0a1e"
-default _current_bg_key   = "bg_default"
-
-label set_background(loc_id, room_id=None):
-    $ lc_set_bg(loc_id, room_id)
-    return
-
-## ── HOME ROOM ACTION REGISTRY ────────────────────────────────────
-init python:
     def get_room_actions(room_id):
         return {
-            "bedroom":    [("sleep","💤 Sleep"), ("nap","😴 Nap"), ("meditate","🧘 Meditate"), ("change","👗 Change outfit")],
-            "kitchen":    [("snack","🍎 Snack"), ("breakfast","🥣 Breakfast"), ("cook","🍳 Cook meal")],
-            "livingroom": [("tv","📺 Watch TV"), ("games","🎮 Games"), ("relax","😌 Relax")],
-            "bathroom":   [("shower","🚿 Shower"), ("glam","💄 Full glam"), ("mirror","🪞 Mirror")],
-            "garden":     [("garden","🌿 Garden"), ("sit","🪑 Sit outside")],
+            "bedroom":    [("sleep","💤 Sleep"),("nap","😴 Nap"),("meditate","🧘 Meditate"),("change","👗 Change outfit")],
+            "kitchen":    [("snack","🍎 Snack"),("breakfast","🥣 Breakfast"),("cook","🍳 Cook")],
+            "livingroom": [("tv","📺 Watch TV"),("games","🎮 Games"),("relax","😌 Relax")],
+            "bathroom":   [("shower","🚿 Shower"),("glam","💄 Full glam"),("mirror","🪞 Mirror")],
+            "garden":     [("garden","🌿 Garden"),("sit","🪑 Sit outside")],
         }.get(room_id, [])
 
     def get_location_actions(loc_id):
         return {
-            "cafe":    [("coffee","☕ Coffee"), ("study","📖 Study"), ("people","👀 People-watch")],
-            "gym":     [("lift","🏋️ Weights"), ("cardio","🏃 Cardio"), ("swim","🏊 Swim")],
-            "park":    [("walk","🚶 Walk"), ("jog","🏃 Jog"), ("sit","🪑 Sit"), ("flowers","🌸 Pick flowers")],
-            "library": [("read","📖 Read"), ("research","🔬 Research"), ("rest","😌 Rest")],
-            "mall":    [("shop","🛍️ Browse"), ("food","🍜 Food court"), ("arcade","🕹️ Arcade")],
-            "clinic":  [("checkup","🩺 Check-up"), ("therapy","🛋️ Therapy")],
-            "bar":     [("drink","🍸 Drink"), ("dance","🕺 Dance"), ("watch","🎶 Watch DJ")],
-            "school":  [("class","📖 Class"), ("studyhall","✏️ Study hall"), ("mingle","😊 Mingle")],
-            "salon":   [("haircut","✂️ Haircut"), ("makeup","💄 Makeup"), ("nails","💅 Nails")],
+            "cafe":    [("coffee","☕ Coffee"),("study","📖 Study"),("people","👀 People-watch")],
+            "gym":     [("lift","🏋️ Weights"),("cardio","🏃 Cardio"),("swim","🏊 Swim")],
+            "park":    [("walk","🚶 Walk"),("jog","🏃 Jog"),("sit","🪑 Sit"),("flowers","🌸 Flowers")],
+            "library": [("read","📖 Read"),("research","🔬 Research"),("rest","😌 Rest")],
+            "mall":    [("shop","🛍️ Browse"),("food","🍜 Food court"),("arcade","🕹️ Arcade")],
+            "clinic":  [("checkup","🩺 Check-up"),("therapy","🛋️ Therapy")],
+            "bar":     [("drink","🍸 Drink"),("dance","🕺 Dance"),("watch","🎶 Watch DJ")],
+            "school":  [("class","📖 Class"),("studyhall","✏️ Study hall"),("mingle","😊 Mingle")],
+            "salon":   [("haircut","✂️ Haircut"),("makeup","💄 Makeup"),("nails","💅 Nails")],
         }.get(loc_id, [])
 
-## ── HOME ACTIONS ────────────────────────────────────────────────
+default _current_bg_key   = "bg_bedroom"
+default _current_bg_color = "#1a1230"
+
+## ── MAIN ENTRY — all navigation starts here ──────────────────────
+label sandbox_loop:
+    jump sandbox_map_loop
+
+## ── MAP LOOP — show map, wait for location click ─────────────────
+label sandbox_map_loop:
+    $ lc_set_bg("street")
+    $ _map_result = renpy.call_screen("lc_map")
+    if _map_result[0] == "wait":
+        jump sandbox_map_wait
+    elif _map_result[0] == "travel":
+        jump sandbox_location_enter
+    jump sandbox_map_loop
+
+label sandbox_map_wait:
+    $ advance_time(1)
+    python:
+        p = time_period
+        icons = ["☀️","🌤️","🌇","🌙"]
+        names = ["Morning","Afternoon","Evening","Night"]
+    "[icons[p]] You wait. It's now [names[p]]."
+    jump sandbox_map_loop
+
+## ── LOCATION ENTER — jumped to by map button ─────────────────────
+label sandbox_location_enter:
+    if current_location == "home":
+        jump sandbox_home_loop
+    else:
+        jump sandbox_hub_loop
+
+## ── HOME LOOP ─────────────────────────────────────────────────────
+label sandbox_home_loop:
+    $ current_room = "bedroom"
+    jump sandbox_room_loop
+
+label sandbox_room_loop:
+    $ lc_set_bg("home", current_room)
+    python:
+        _room_actions = get_room_actions(current_room)
+        _npcs_here    = []
+        for _npc_id in ["mom", "sister"]:
+            _nloc, _nroom, _ = get_npc_location(_npc_id)
+            if _nloc == "home" and (_nroom == current_room or _nroom is None):
+                _npcs_here.append(_npc_id)
+    $ _room_result = renpy.call_screen("lc_home_room",
+        current_room_id = current_room,
+        npcs_here       = _npcs_here,
+        room_actions    = _room_actions)
+    if _room_result[0] == "talk":
+        $ _talk_target = _room_result[1]
+        jump sandbox_room_talk
+    elif _room_result[0] == "action":
+        $ _action_id = _room_result[1]
+        jump sandbox_room_action
+    elif _room_result[0] == "wait":
+        jump sandbox_room_wait
+    elif _room_result[0] == "goto_room":
+        $ current_room = _room_result[1]
+        jump sandbox_room_enter_event
+    elif _room_result[0] == "goto_map":
+        jump sandbox_map_loop
+    jump sandbox_room_loop
+
+label sandbox_room_enter_event:
+    ## Check for one-time room entry events
+    if current_room == "kitchen" and time_day == 1 and time_period == 0 and not flag_met_sister:
+        $ flag_met_sister = True
+        call meet_sister_intro
+    jump sandbox_room_loop
+
+label sandbox_room_talk:
+    call expression "talk_" + _talk_target
+    jump sandbox_room_loop
+
+label sandbox_room_action:
+    call expression "action_home_" + _action_id
+    jump sandbox_room_loop
+
+label sandbox_room_wait:
+    $ advance_time(1)
+    python:
+        p = time_period
+        icons = ["☀️","🌤️","🌇","🌙"]
+        names = ["Morning","Afternoon","Evening","Night"]
+    "[icons[p]] Time passes. It's now [names[p]]."
+    jump sandbox_room_loop
+
+## ── LOCATION HUB LOOP ────────────────────────────────────────────
+label sandbox_hub_loop:
+    $ lc_set_bg(current_location)
+    python:
+        _loc_id      = current_location
+        _npcs_here   = npcs_at_location(_loc_id)
+        _loc_actions = get_location_actions(_loc_id)
+    $ _hub_result = renpy.call_screen("lc_location_hub",
+        loc_id      = current_location,
+        npcs_here   = _npcs_here,
+        loc_actions = _loc_actions)
+    if _hub_result[0] == "talk":
+        $ _talk_target = _hub_result[1]
+        jump sandbox_hub_talk
+    elif _hub_result[0] == "action":
+        $ _action_id = _hub_result[1]
+        jump sandbox_hub_action
+    elif _hub_result[0] == "wait":
+        jump sandbox_hub_wait
+    elif _hub_result[0] == "goto_map":
+        jump sandbox_map_loop
+    jump sandbox_hub_loop
+
+label sandbox_hub_talk:
+    call expression "talk_" + _talk_target
+    jump sandbox_hub_loop
+
+label sandbox_hub_action:
+    call expression "action_" + current_location + "_" + _action_id
+    jump sandbox_hub_loop
+
+label sandbox_hub_wait:
+    $ advance_time(1)
+    python:
+        p = time_period
+        icons = ["☀️","🌤️","🌇","🌙"]
+        names = ["Morning","Afternoon","Evening","Night"]
+    "[icons[p]] Time passes. It's now [names[p]]."
+    jump sandbox_hub_loop
+
+## ── WAIT FROM MAP ────────────────────────────────────────────────
+label sandbox_wait_from_map:
+    jump sandbox_map_wait
+
+## ── TALKSTUB — any unwritten character ───────────────────────────
+label talk_default:
+    "They nod at you. Busy."
+    return
+
+## ── HOME ACTIONS ─────────────────────────────────────────────────
 label action_home_sleep:
     $ add_stat("energy", 100)
     $ add_stat("happiness", 5)
     $ advance_time(2)
     "You sleep deeply. Full energy restored."
-    call check_scheduled_events
     return
 
 label action_home_nap:
@@ -209,7 +203,7 @@ label action_home_meditate:
     $ add_stat("happiness", 10)
     $ add_stat("energy", 5)
     $ advance_time(1)
-    "Quiet and still. +10 happiness, +5 energy."
+    "Quiet and still. +10 happiness."
     return
 
 label action_home_change:
@@ -218,7 +212,7 @@ label action_home_change:
 
 label action_home_snack:
     $ add_stat("energy", 15)
-    "A snack. It helps. +15 energy."
+    "A snack. +15 energy."
     return
 
 label action_home_breakfast:
@@ -250,20 +244,20 @@ label action_home_games:
 label action_home_relax:
     $ add_stat("happiness", 6)
     $ add_stat("energy", 5)
-    "Just being still for a minute. +6 happiness."
+    "Just being still. +6 happiness."
     return
 
 label action_home_shower:
     $ add_stat("charm", 10)
     $ add_stat("energy", 10)
     $ advance_time(1)
-    "Hot shower. Good pressure. +10 charm, +10 energy."
+    "Hot shower. +10 charm, +10 energy."
     return
 
 label action_home_glam:
     $ add_stat("charm", 20)
     $ advance_time(1)
-    "Full routine. You take your time. +20 charm."
+    "Full routine. +20 charm."
     return
 
 label action_home_mirror:
@@ -283,7 +277,7 @@ label action_home_sit:
     "The garden in the afternoon. The light does something good."
     return
 
-## ── LOCATION ACTIONS ────────────────────────────────────────────
+## ── LOCATION ACTIONS ─────────────────────────────────────────────
 label action_cafe_coffee:
     $ add_stat("energy", 30)
     $ stat_money -= 5
@@ -322,7 +316,7 @@ label action_gym_swim:
     $ add_stat("happiness", 10)
     $ stat_energy -= 20
     $ advance_time(1)
-    "Lap after lap. Meditative. +4 fitness, +10 happiness."
+    "Lap after lap. +4 fitness."
     return
 
 label action_park_walk:
@@ -330,20 +324,20 @@ label action_park_walk:
     $ add_stat("fitness", 2)
     $ stat_energy -= 10
     $ advance_time(1)
-    "Fresh air. Different pace. +10 happiness."
+    "Fresh air. +10 happiness."
     return
 
 label action_park_jog:
     $ add_stat("fitness", 5)
     $ stat_energy -= 20
     $ advance_time(1)
-    "Three miles. You'll feel it tomorrow. +5 fitness."
+    "Three miles. +5 fitness."
     return
 
 label action_park_sit:
     $ add_stat("happiness", 8)
     $ advance_time(1)
-    "The bench is warm. You watch clouds. +8 happiness."
+    "The bench is warm. +8 happiness."
     return
 
 label action_park_flowers:
@@ -362,7 +356,7 @@ label action_library_research:
     $ add_stat("intelligence", 8)
     $ stat_energy -= 25
     $ advance_time(3)
-    "Deep dive. Notes fill three pages. +8 intelligence."
+    "Deep dive. +8 intelligence."
     return
 
 label action_library_rest:
@@ -372,14 +366,14 @@ label action_library_rest:
     return
 
 label action_mall_shop:
-    "You browse. Nothing today, but it passes the time."
+    "You browse. Nothing today."
     return
 
 label action_mall_food:
     $ add_stat("energy", 25)
     $ stat_money -= 8
     $ advance_time(1)
-    "Food court ramen. Not great, not bad. +25 energy."
+    "Food court ramen. +25 energy."
     return
 
 label action_mall_arcade:
@@ -409,7 +403,7 @@ label action_bar_drink:
     $ add_stat("happiness", 15)
     $ stat_money -= 12
     $ advance_time(1)
-    "One cocktail, well made. +15 happiness."
+    "One cocktail. +15 happiness."
     return
 
 label action_bar_dance:
@@ -423,27 +417,27 @@ label action_bar_dance:
 label action_bar_watch:
     $ add_stat("happiness", 15)
     $ advance_time(1)
-    "The DJ is good. You let the music work. +15 happiness."
+    "The DJ is good. +15 happiness."
     return
 
 label action_school_class:
     $ add_stat("intelligence", 5)
     $ stat_energy -= 20
     $ advance_time(3)
-    "Three hours. You pay attention when it matters. +5 intelligence."
+    "Three hours. +5 intelligence."
     return
 
 label action_school_studyhall:
     $ add_stat("intelligence", 3)
     $ stat_energy -= 10
     $ advance_time(1)
-    "Study hall. Focused. +3 intelligence."
+    "Study hall. +3 intelligence."
     return
 
 label action_school_mingle:
     $ add_stat("charm", 5)
     $ advance_time(1)
-    "Between classes. Better at this than you thought. +5 charm."
+    "Between classes. +5 charm."
     return
 
 label action_salon_haircut:
@@ -453,7 +447,7 @@ label action_salon_haircut:
         $ advance_time(1)
         "The stylist does something right. +8 charm."
     else:
-        "You need $40 for a haircut."
+        "You need $40."
     return
 
 label action_salon_makeup:
@@ -463,7 +457,7 @@ label action_salon_makeup:
         $ advance_time(1)
         "You look in the mirror. Better. +10 charm."
     else:
-        "You need $30 for makeup."
+        "You need $30."
     return
 
 label action_salon_nails:
@@ -472,5 +466,33 @@ label action_salon_nails:
         $ stat_money -= 25
         "Small thing. Big impact. +6 charm."
     else:
-        "You need $25 for nails."
+        "You need $25."
+    return
+
+## ── STORY EVENTS ─────────────────────────────────────────────────
+label event_first_afternoon:
+    thought "There's a lot of city out there. No rush."
+    $ add_diary("Made it through the first morning.")
+    return
+
+label event_therapy_nudge:
+    thought "I keep thinking about the clinic."
+    return
+
+## ── SET BACKGROUND (kept as label for compatibility) ─────────────
+label set_background(loc_id, room_id=None):
+    $ lc_set_bg(loc_id, room_id)
+    return
+
+label check_scheduled_events:
+    return
+
+label check_location_event(loc_id):
+    return
+
+label check_room_event(room_id):
+    return
+
+label sandbox_wait:
+    $ advance_time(1)
     return

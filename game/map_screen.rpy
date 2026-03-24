@@ -57,7 +57,7 @@ screen lc_map():
             padding (4, 4)
 
             button:
-                action [Function(setattr, store, "current_location", loc_id), Function(renpy.hide_screen, "lc_map"), Function(renpy.jump, "sandbox_location_enter")]
+                action [Function(setattr, store, "current_location", loc_id), Function(renpy.return_statement, ("travel", None))]
                 sensitive is_open
                 xfill True
                 yfill True
@@ -137,7 +137,7 @@ screen lc_map():
         hbox:
             spacing 8
             textbutton "⏭️ Wait":
-                action [Function(renpy.hide_screen, "lc_map"), Function(renpy.jump, "sandbox_wait_from_map")]
+                action Function(renpy.return_statement, ("wait", None))
                 text_color       "#94a3b8"
                 text_hover_color "#fbbf24"
                 background       "#1e293b"
