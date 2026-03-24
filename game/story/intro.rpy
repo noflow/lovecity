@@ -18,13 +18,76 @@ label lc_start:
 
     $ flag_intro_done = True
 
-    # Go to kitchen
-    ## scene removed — background handled by sandbox set_background
+    ## ── Meet Mom (inlined — no call/return) ──
+    show mom at left with dissolve
 
-    call meet_mom_intro
+    menu:
+        "Morning. What's for breakfast?":
+            mom "Eggs and coffee. Sit down."
+            mc "Thanks."
+            mom "You have orientation today. Don't be late."
+            mc "I know."
+            $ add_rel("mom", 5)
 
-    ## scene removed — background handled by sandbox set_background
+        "I'm already running late.":
+            mom "You're not. Sit down. Eat something."
+            mc "I'm fine."
+            mom "Sit. Down."
+            mc "..."
+            $ add_rel("mom", 2)
+            $ add_stat("happiness", -3)
 
+        "I don't think I'm ready for this.":
+            mom "Nobody's ever ready."
+            narrator "She says it plainly. Not unkind."
+            mom "But you're going anyway. That's the part that matters."
+            mc "Right."
+            $ add_rel("mom", 8)
+            $ add_stat("trust", 5)
+
+    mom "The school is good. The people are..."
+    narrator "She pauses."
+    mom "...People. You'll figure it out."
+
+    $ flag_met_mom = True
+    hide mom with dissolve
+
+    ## ── Meet Sister if home (inlined) ──
+    python:
+        _sis_loc, _sis_room, _sis_act = get_npc_location("sister", period=0, weekday=1)
+
+    if _sis_loc == "home" and not flag_met_sister:
+        show sister at right with dissolve
+
+        sister "Finally. I thought you died."
+        mc "Good morning to you too."
+        sister "You look nervous."
+
+        menu:
+            "I'm not nervous.":
+                sister "You are. Your left eye is doing that thing."
+                mc "What thing?"
+                sister "The thing."
+                $ add_rel("sister", 3)
+
+            "A little, maybe.":
+                sister "Don't be. They're just people."
+                narrator "She says it the same way your mom says things. Practical. Final."
+                mc "Easy for you to say."
+                sister "Yes. It is."
+                $ add_rel("sister", 6)
+                $ add_stat("confidence", 3)
+
+            "I'm fine. Mind your business.":
+                sister "Rude."
+                mc "..."
+                sister "Good luck anyway, jerk."
+                $ add_rel("sister", 1)
+
+        $ flag_met_sister = True
+        hide sister with dissolve
+
+    ## ── Head out ──
     narrator "You go back to your room. Get dressed. Pack your bag."
     narrator "The day is out there."
     narrator "This is where it starts."
@@ -32,10 +95,9 @@ label lc_start:
     $ current_location = "home"
     $ current_room     = "bedroom"
     $ time_day         = 1
-    $ time_period      = 0  # Morning
+    $ time_period      = 0
 
-    call check_intro_events
-
+    ## Jump cleanly into sandbox — zero pending call frames on the stack
     jump sandbox_room_loop
 
 
