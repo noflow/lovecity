@@ -26,30 +26,27 @@ label sandbox_location_enter:
         jump sandbox_hub_loop
 
 ## ── HOME HUB ────────────────────────────────────────────────────
+## Player always enters home in their bedroom
 label sandbox_home_hub:
-    call set_background("home", None)
-    $ result = renpy.call_screen("lc_home_hub")
-    if result[0] == "enter_room":
-        $ current_room = result[1]
-        call set_background("home", result[1])
-        call check_room_event(result[1])
-        jump sandbox_room_loop
-    elif result[0] == "goto_map":
-        jump sandbox_loop
+    $ current_room = "bedroom"
+    jump sandbox_room_loop
 
 ## ── HOME ROOM LOOP ──────────────────────────────────────────────
+## The main home loop — shows lc_home_room screen with room nav bar
 label sandbox_room_loop:
+    call set_background("home", current_room)
+    call check_room_event(current_room)
     python:
-        loc_actions = get_room_actions(current_room)
-        npcs_here   = []
+        room_actions = get_room_actions(current_room)
+        npcs_here    = []
         for npc_id in ["mom", "sister"]:
             npc_loc, npc_room, _ = get_npc_location(npc_id)
             if npc_loc == "home" and (npc_room == current_room or npc_room is None):
                 npcs_here.append(npc_id)
-    $ result = renpy.call_screen("lc_location_hub",
-        loc_id       = "home",
-        npcs_here    = npcs_here,
-        loc_actions  = loc_actions)
+    $ result = renpy.call_screen("lc_home_room",
+        current_room_id = current_room,
+        npcs_here       = npcs_here,
+        room_actions    = room_actions)
     if result[0] == "talk":
         call expression "talk_" + result[1]
         jump sandbox_room_loop
@@ -60,8 +57,9 @@ label sandbox_room_loop:
     elif result[0] == "wait":
         call sandbox_wait
         jump sandbox_room_loop
-    elif result[0] == "goto_home_hub":
-        jump sandbox_home_hub
+    elif result[0] == "goto_room":
+        $ current_room = result[1]
+        jump sandbox_room_loop
     elif result[0] == "goto_map":
         jump sandbox_loop
     jump sandbox_room_loop

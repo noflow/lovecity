@@ -30,12 +30,13 @@ label lc_start:
     narrator "This is where it starts."
 
     $ current_location = "home"
+    $ current_room     = "bedroom"
     $ time_day         = 1
     $ time_period      = 0  # Morning
 
     call check_intro_events
 
-    jump sandbox_loop
+    jump sandbox_room_loop
 
 
 ## ── MEET MOM ────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 ## location_hub.rpy — In-location screen
 ## ═══════════════════════════════════════════════════════════════
 
-## ── LOCATION HUB SCREEN ─────────────────────────────────────────
+## ── LOCATION HUB SCREEN (non-home locations) ────────────────────
 screen lc_location_hub(loc_id, npcs_here, loc_actions):
     tag hub
     zorder 50
@@ -11,167 +11,19 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
         loc_name = loc_info["name"]
         loc_icon = loc_info["icon"]
 
-    # Location name top-left
+    # Location name — top left
     frame:
-        xpos        14
-        ypos        50
-        background  "#07071088"
-        padding     (12, 8)
+        xpos       14
+        ypos       50
+        background "#07071088"
+        padding    (12, 8)
         hbox:
             spacing 8
             text loc_icon size 20 yalign 0.5
             text loc_name color "#f472b6" bold True size 18 yalign 0.5
             text "[time_str()]" color "#60a5fa" size 14 yalign 0.5
 
-    # Navigation buttons top-right
-    frame:
-        xalign  1.0
-        ypos    50
-        xpos    -14
-        background "#07071088"
-        padding    (10, 7)
-        hbox:
-            spacing 8
-            # When in a home room, show "← Rooms" to go back to room picker
-            if loc_id == "home":
-                textbutton "🏠 Rooms":
-                    action Function(renpy.return_statement, ("goto_home_hub", None))
-                    text_color       "#94a3b8"
-                    text_hover_color "#f472b6"
-                    background       "#1e293b"
-                    hover_background "#334155"
-                    padding          (12, 7)
-            textbutton "🗺️ Map":
-                action Function(renpy.return_statement, ("goto_map", None))
-                text_color       "#94a3b8"
-                text_hover_color "#60a5fa"
-                background       "#1e293b"
-                hover_background "#334155"
-                padding          (12, 7)
-
-    # NPC characters present
-    if npcs_here:
-        hbox:
-            xalign  0.5
-            ypos    200
-            spacing 24
-            for npc_id in npcs_here:
-                python:
-                    npc      = NPC_DATA.get(npc_id, {"name": npc_id})
-                    npc_name = npc["name"]
-                    npc_job  = npc.get("job", "")
-                    rel_val  = getattr(store, "rel_" + npc_id, 0)
-                    rel_lbl  = rel_label(rel_val)
-                    is_dating = store.dating.get(npc_id, False)
-
-                frame:
-                    xsize   140
-                    ysize   220
-                    background Frame(Solid("#0f172a88"), 16, 16)
-                    hover_background Frame(Solid("#f472b622"), 16, 16)
-                    padding (0, 0)
-
-                    button:
-                        action  Function(renpy.return_statement, ("talk", npc_id))
-                        xfill   True
-                        yfill   True
-
-                        vbox:
-                            xalign 0.5
-                            yalign 0.5
-                            spacing 6
-
-                            frame:
-                                xalign  0.5
-                                xsize   110
-                                ysize   150
-                                background "#0a0a1e"
-                                vbox:
-                                    xalign 0.5
-                                    yalign 0.5
-                                    text ("❤️" if is_dating else "👤") size 56 xalign 0.5
-                                    text npc_name.split()[0] size 11 color "#f472b6" xalign 0.5
-
-                            text npc_name.split()[0] size 14 bold True color "#f472b6" xalign 0.5
-                            text rel_lbl size 11 color "#475569" xalign 0.5
-
-                            if is_dating:
-                                text "💕" size 14 xalign 0.5
-
-    else:
-        frame:
-            xalign  0.5
-            ypos    280
-            background "#07071066"
-            padding    (30, 20)
-            vbox:
-                xalign 0.5
-                spacing 6
-                text "Nobody around right now." color "#334155" italic True size 16 xalign 0.5
-                text "Come back at a different time of day." color "#1e293b" size 13 xalign 0.5
-
-    # Bottom action panel
-    frame:
-        xfill   True
-        yalign  1.0
-        background "#07071099"
-        padding    (16, 14)
-
-        vbox:
-            spacing 10
-
-            hbox:
-                spacing 10
-                xfill True
-
-                if loc_actions:
-                    for action_id, action_label in loc_actions:
-                        textbutton "[action_label]":
-                            action  Function(renpy.return_statement, ("action", action_id))
-                            text_color       "#94a3b8"
-                            text_hover_color "#e2e8f0"
-                            background       "#1e293b"
-                            hover_background "#334155"
-                            padding          (12, 9)
-
-                null xfill True
-
-                textbutton "⏭️ Wait":
-                    action  Function(renpy.return_statement, ("wait", None))
-                    text_color       "#94a3b8"
-                    text_hover_color "#fbbf24"
-                    background       "#1e293b55"
-                    hover_background "#334155"
-                    padding          (12, 9)
-
-            hbox:
-                spacing 20
-                xfill True
-                text "💰 $[stat_money]"      color "#34d399" size 13
-                text "⚡ [stat_energy]%"     color "#fbbf24" size 13
-                text "😊 [stat_happiness]%"  color "#f472b6" size 13
-                null xfill True
-                text "Day [time_day]  [time_str()]" color "#475569" size 13
-
-
-## ── HOME HUB — room picker ───────────────────────────────────────
-screen lc_home_hub():
-    tag hub
-    zorder 50
-
-    add Solid(bg_colors.get("bg_home", "#1a1230"))
-
-    frame:
-        xpos        14
-        ypos        50
-        background  "#07071088"
-        padding     (12, 8)
-        hbox:
-            spacing 8
-            text "🏠" size 20 yalign 0.5
-            text "Home" color "#f472b6" bold True size 18 yalign 0.5
-            text "[time_str()]" color "#60a5fa" size 14 yalign 0.5
-
+    # Map button — top right
     frame:
         xalign  1.0
         ypos    50
@@ -186,47 +38,235 @@ screen lc_home_hub():
             hover_background "#334155"
             padding          (12, 7)
 
-    vbox:
-        xalign  0.5
-        ypos    140
-        spacing 16
-
-        text "Which room?" color "#f472b6" bold True size 20 xalign 0.5
-
+    # NPCs present — middle of screen
+    if npcs_here:
         hbox:
             xalign  0.5
-            spacing 16
-            for room_id, room_info in HOME_ROOMS.items():
+            ypos    180
+            spacing 24
+            for npc_id in npcs_here:
                 python:
-                    npcs_in_room = []
-                    for npc_id in ["mom", "sister"]:
-                        npc_loc, npc_room, _ = get_npc_location(npc_id)
-                        if npc_loc == "home" and (npc_room == room_id or npc_room is None):
-                            npcs_in_room.append(npc_id)
+                    npc       = NPC_DATA.get(npc_id, {"name": npc_id})
+                    npc_name  = npc["name"]
+                    rel_val   = getattr(store, "rel_" + npc_id, 0)
+                    rel_lbl   = rel_label(rel_val)
+                    is_dating = store.dating.get(npc_id, False)
 
                 frame:
-                    xsize   160
-                    ysize   130
-                    background Frame(Solid("#0f172a99"), 14, 14)
-                    hover_background Frame(Solid("#f472b622"), 14, 14)
+                    xsize   130
+                    ysize   200
+                    background "#0f172a88"
+                    hover_background "#f472b622"
                     padding (0, 0)
-
                     button:
-                        action  Function(renpy.return_statement, ("enter_room", room_id))
-                        xfill   True
-                        yfill   True
-
+                        action Function(renpy.return_statement, ("talk", npc_id))
+                        xfill True
+                        yfill True
                         vbox:
                             xalign 0.5
                             yalign 0.5
                             spacing 6
-                            text room_info["icon"] size 38 xalign 0.5
-                            text room_info["name"] size 14 bold True color "#e2e8f0" xalign 0.5 text_align 0.5
-                            if npcs_in_room:
-                                hbox:
+                            frame:
+                                xalign    0.5
+                                xsize     100
+                                ysize     140
+                                background "#0a0a1e"
+                                vbox:
                                     xalign 0.5
-                                    spacing 4
-                                    for npc_id in npcs_in_room:
-                                        python:
-                                            npc = NPC_DATA.get(npc_id, {})
-                                        text npc.get("name","?").split()[0] size 11 color "#f472b6"
+                                    yalign 0.5
+                                    text ("❤️" if is_dating else "👤") size 52 xalign 0.5
+                                    text npc_name.split()[0] size 11 color "#f472b6" xalign 0.5
+                            text npc_name.split()[0] size 13 bold True color "#f472b6" xalign 0.5
+                            text rel_lbl size 11 color "#475569" xalign 0.5
+    else:
+        frame:
+            xalign  0.5
+            ypos    260
+            background "#07071066"
+            padding    (30, 16)
+            text "Nobody here right now." color "#334155" italic True size 15 xalign 0.5
+
+    # Bottom panel — actions + wait + stats strip
+    frame:
+        xfill      True
+        yalign     1.0
+        background "#07071099"
+        padding    (16, 12)
+        vbox:
+            spacing 8
+            # Action buttons
+            if loc_actions:
+                hbox:
+                    spacing 8
+                    xfill True
+                    for action_id, action_label in loc_actions:
+                        textbutton "[action_label]":
+                            action Function(renpy.return_statement, ("action", action_id))
+                            text_color       "#94a3b8"
+                            text_hover_color "#e2e8f0"
+                            background       "#1e293b"
+                            hover_background "#334155"
+                            padding          (10, 8)
+                    null xfill True
+                    textbutton "⏭️ Wait":
+                        action Function(renpy.return_statement, ("wait", None))
+                        text_color       "#94a3b8"
+                        text_hover_color "#fbbf24"
+                        background       "#1e293b55"
+                        hover_background "#334155"
+                        padding          (10, 8)
+            # Stat strip
+            hbox:
+                spacing 20
+                xfill True
+                text "💰 $[stat_money]"      color "#34d399" size 13
+                text "⚡ [stat_energy]%"     color "#fbbf24" size 13
+                text "😊 [stat_happiness]%"  color "#f472b6" size 13
+                null xfill True
+                text "Day [time_day]  [time_str()]" color "#475569" size 13
+
+
+## ── HOME ROOM SCREEN ─────────────────────────────────────────────
+## Shown whenever the player is inside their home.
+## Bottom bar shows all other rooms as navigation buttons.
+## Current room is excluded from the bottom bar.
+screen lc_home_room(current_room_id, npcs_here, room_actions):
+    tag hub
+    zorder 50
+
+    python:
+        room_info = HOME_ROOMS.get(current_room_id, {"name": current_room_id, "icon": "🚪"})
+        room_name = room_info["name"]
+        room_icon = room_info["icon"]
+
+    # Room name + time — top left
+    frame:
+        xpos       14
+        ypos       50
+        background "#07071088"
+        padding    (12, 8)
+        hbox:
+            spacing 8
+            text room_icon size 20 yalign 0.5
+            text room_name color "#f472b6" bold True size 18 yalign 0.5
+            text "[time_str()]" color "#60a5fa" size 14 yalign 0.5
+
+    # Map button — top right
+    frame:
+        xalign  1.0
+        ypos    50
+        xpos    -14
+        background "#07071088"
+        padding    (10, 7)
+        textbutton "🗺️ Map":
+            action Function(renpy.return_statement, ("goto_map", None))
+            text_color       "#94a3b8"
+            text_hover_color "#60a5fa"
+            background       "#1e293b"
+            hover_background "#334155"
+            padding          (12, 7)
+
+    # NPCs present in this room
+    if npcs_here:
+        hbox:
+            xalign  0.5
+            ypos    180
+            spacing 24
+            for npc_id in npcs_here:
+                python:
+                    npc       = NPC_DATA.get(npc_id, {"name": npc_id})
+                    npc_name  = npc["name"]
+                    rel_val   = getattr(store, "rel_" + npc_id, 0)
+                    rel_lbl   = rel_label(rel_val)
+                    is_dating = store.dating.get(npc_id, False)
+
+                frame:
+                    xsize   130
+                    ysize   200
+                    background "#0f172a88"
+                    hover_background "#f472b622"
+                    padding (0, 0)
+                    button:
+                        action Function(renpy.return_statement, ("talk", npc_id))
+                        xfill True
+                        yfill True
+                        vbox:
+                            xalign 0.5
+                            yalign 0.5
+                            spacing 6
+                            frame:
+                                xalign    0.5
+                                xsize     100
+                                ysize     140
+                                background "#0a0a1e"
+                                vbox:
+                                    xalign 0.5
+                                    yalign 0.5
+                                    text ("❤️" if is_dating else "👤") size 52 xalign 0.5
+                                    text npc_name.split()[0] size 11 color "#f472b6" xalign 0.5
+                            text npc_name.split()[0] size 13 bold True color "#f472b6" xalign 0.5
+                            text rel_lbl size 11 color "#475569" xalign 0.5
+
+    # ── BOTTOM PANEL ─────────────────────────────────────────────
+    frame:
+        xfill      True
+        yalign     1.0
+        background "#07071099"
+        padding    (14, 10)
+        vbox:
+            spacing 8
+
+            # Action buttons for this room
+            if room_actions:
+                hbox:
+                    spacing 8
+                    xfill True
+                    for action_id, action_label in room_actions:
+                        textbutton "[action_label]":
+                            action Function(renpy.return_statement, ("action", action_id))
+                            text_color       "#94a3b8"
+                            text_hover_color "#e2e8f0"
+                            background       "#1e293b"
+                            hover_background "#334155"
+                            padding          (10, 8)
+                    null xfill True
+                    textbutton "⏭️ Wait":
+                        action Function(renpy.return_statement, ("wait", None))
+                        text_color       "#94a3b8"
+                        text_hover_color "#fbbf24"
+                        background       "#1e293b55"
+                        hover_background "#334155"
+                        padding          (10, 8)
+
+            # Room navigation bar — all rooms except current
+            hbox:
+                spacing 6
+                xfill True
+                python:
+                    other_rooms = [(rid, rinfo) for rid, rinfo in HOME_ROOMS.items() if rid != current_room_id]
+                for room_id, rinfo in other_rooms:
+                    python:
+                        # Check if an NPC is in that room
+                        npc_there = []
+                        for nid in ["mom", "sister"]:
+                            nloc, nroom, _ = get_npc_location(nid)
+                            if nloc == "home" and (nroom == room_id or nroom is None):
+                                npc_there.append(nid)
+                        has_npc = len(npc_there) > 0
+                    textbutton "[rinfo['icon']] [rinfo['name']]":
+                        action Function(renpy.return_statement, ("goto_room", room_id))
+                        text_color       ("#f472b6" if has_npc else "#94a3b8")
+                        text_hover_color "#e2e8f0"
+                        background       ("#f472b611" if has_npc else "#0f172a")
+                        hover_background "#1e293b"
+                        padding          (10, 7)
+
+            # Stat strip
+            hbox:
+                spacing 20
+                xfill True
+                text "💰 $[stat_money]"      color "#34d399" size 12
+                text "⚡ [stat_energy]%"     color "#fbbf24" size 12
+                text "😊 [stat_happiness]%"  color "#f472b6" size 12
+                null xfill True
+                text "Day [time_day]  [time_str()]" color "#475569" size 12
