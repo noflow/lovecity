@@ -1,33 +1,30 @@
 ## sandbox.rpy
 ## ═══════════════════════════════════════════════════════════════
-## CALL STACK RULES:
-##   'call screen X' pushes a frame. After screen returns, we are
-##   INSIDE that frame. Any 'jump' from within it leaves the frame
-##   on the stack — accumulating one frame per loop iteration.
+## CRITICAL ARCHITECTURE RULE:
 ##
-##   FIX: After 'call screen', only use IF/ELIF to set variables,
-##   then fall through to the BOTTOM of the label which has a
-##   single 'jump back_to_loop'. The jump happens AFTER the call
-##   screen frame is resolved by the implicit return at label end.
+## 'call screen' pushes +1 on the call stack.
+## 'return' pops -1. If stack hits 0, Ren'Py restarts.
+## 'jump' does NOT pop the stack.
 ##
-##   Actually the real fix: 'call screen' is followed by code that
-##   runs in the same label frame. The jump at the end of the label
-##   does NOT accumulate — it just moves the instruction pointer.
-##   Ren'Py labels are not stack frames themselves; only 'call label'
-##   pushes a frame. 'jump' never pushes frames. 'call screen' pushes
-##   one frame which is popped when the screen closes.
+## Therefore: NEVER jump out of a label that contains 'call screen'.
+## The label must RETURN after call screen resolves.
 ##
-##   So the pattern IS safe IF we never do 'call label' inside a
-##   label that was reached by 'call screen' returning. We only do
-##   'call expression "talk_X"' etc — those push+pop cleanly.
+## CORRECT PATTERN:
+##   label sandbox_room_loop:
+##       call screen lc_home_room(...)
+##       python: _res = _return[0]; _val = _return[1]
+##       $ current_room = _val if _res == "goto_room" else current_room
+##       $ _sandbox_next = _res   ← store result in variable
+##       return                   ← pop the call screen frame cleanly
 ##
-##   THE ACTUAL BUG: lc_start uses 'jump sandbox_room_loop'.
-##   sandbox_room_loop does 'call screen'. Screen closes, frame pops,
-##   we're back in sandbox_room_loop. Then 'jump sandbox_room_loop'
-##   loops. This is FINE.
+##   label sandbox_room_driver:  ← no call screen here, safe to jump
+##       call sandbox_room_loop  ← call (pushes frame), loop returns, frame pops
+##       if _sandbox_next == "goto_map": jump sandbox_map_driver
+##       jump sandbox_room_driver
 ##
-##   BUT: if anything in the chain does 'call lc_start' or Ren'Py
-##   itself restarts — check variables.rpy for problematic defaults.
+## The driver label calls the loop label (which contains call screen).
+## The loop label always returns. The driver label loops via jump — safe
+## because the driver itself has no call screen and no pending frames.
 ## ═══════════════════════════════════════════════════════════════
 
 init python:
@@ -69,35 +66,71 @@ init python:
 
 default _current_bg_key   = "bg_bedroom"
 default _current_bg_color = "#1a1230"
-default _sandbox_action   = ""
-default _sandbox_target   = ""
+default _sandbox_next     = ""
+default _sandbox_val      = ""
 
 ## ── ENTRY ────────────────────────────────────────────────────────
 label sandbox_loop:
-    jump sandbox_map_loop
+    jump sandbox_map_driver
 
-## ── MAP LOOP ─────────────────────────────────────────────────────
-label sandbox_map_loop:
+## ═══════════════════════════════════════════════════════════════
+## MAP
+## ═══════════════════════════════════════════════════════════════
+
+## Driver: loops via jump, no call screen — safe
+label sandbox_map_driver:
     $ lc_set_bg("street")
-    call screen lc_map
-    if _return[0] == "travel":
+    call sandbox_map_screen
+    if _sandbox_next == "travel":
         jump sandbox_location_enter
-    if _return[0] == "wait":
+    if _sandbox_next == "wait":
         $ advance_time(1)
         python:
             p = time_period
             icons = ["☀️","🌤️","🌇","🌙"]
             names = ["Morning","Afternoon","Evening","Night"]
         "[icons[p]] You wait. It's now [names[p]]."
-    jump sandbox_map_loop
+    jump sandbox_map_driver
+
+## Screen label: contains call screen, always returns
+label sandbox_map_screen:
+    call screen lc_map
+    $ _sandbox_next = _return[0]
+    $ _sandbox_val  = _return[1] if len(_return) > 1 else ""
+    return
 
 label sandbox_location_enter:
     if current_location == "home":
-        jump sandbox_room_loop
-    jump sandbox_hub_loop
+        jump sandbox_room_driver
+    jump sandbox_hub_driver
 
-## ── HOME ROOM LOOP ───────────────────────────────────────────────
-label sandbox_room_loop:
+## ═══════════════════════════════════════════════════════════════
+## HOME ROOMS
+## ═══════════════════════════════════════════════════════════════
+
+## Driver: loops via jump, no call screen — safe
+label sandbox_room_driver:
+    call sandbox_room_screen
+    if _sandbox_next == "goto_map":
+        jump sandbox_map_driver
+    if _sandbox_next == "goto_room":
+        $ current_room = _sandbox_val
+        call sandbox_room_enter_event
+    elif _sandbox_next == "talk":
+        call expression "talk_" + _sandbox_val
+    elif _sandbox_next == "action":
+        call expression "action_home_" + _sandbox_val
+    elif _sandbox_next == "wait":
+        $ advance_time(1)
+        python:
+            p = time_period
+            icons = ["☀️","🌤️","🌇","🌙"]
+            names = ["Morning","Afternoon","Evening","Night"]
+        "[icons[p]] Time passes. It's now [names[p]]."
+    jump sandbox_room_driver
+
+## Screen label: contains call screen, always returns
+label sandbox_room_screen:
     $ lc_set_bg("home", current_room)
     python:
         _room_actions = get_room_actions(current_room)
@@ -107,23 +140,9 @@ label sandbox_room_loop:
             if _nloc == "home" and (_nroom == current_room or _nroom is None):
                 _npcs_here.append(_npc_id)
     call screen lc_home_room(current_room_id=current_room, npcs_here=_npcs_here, room_actions=_room_actions)
-    python:
-        _res = _return[0]
-        _val = _return[1] if len(_return) > 1 else None
-    if _res == "goto_map":
-        jump sandbox_map_loop
-    if _res == "goto_room":
-        $ current_room = _val
-        jump sandbox_room_enter_event
-    if _res == "talk":
-        $ _sandbox_target = _val
-        jump sandbox_room_do_talk
-    if _res == "action":
-        $ _sandbox_action = _val
-        jump sandbox_room_do_action
-    if _res == "wait":
-        jump sandbox_room_do_wait
-    jump sandbox_room_loop
+    $ _sandbox_next = _return[0]
+    $ _sandbox_val  = _return[1] if len(_return) > 1 else ""
+    return
 
 label sandbox_room_enter_event:
     if current_room == "kitchen" and time_day == 1 and time_period == 0 and not flag_met_sister:
@@ -140,67 +159,53 @@ label sandbox_room_enter_event:
                 sister "Don't be. They're just people."
                 $ add_rel("sister", 6)
                 $ add_stat("confidence", 3)
-            "I'm fine. Mind your business.":
+            "Mind your business.":
                 sister "Rude. Good luck anyway."
                 $ add_rel("sister", 1)
         hide sister with dissolve
-    jump sandbox_room_loop
+    return
 
-label sandbox_room_do_talk:
-    call expression "talk_" + _sandbox_target
-    jump sandbox_room_loop
+## ═══════════════════════════════════════════════════════════════
+## LOCATION HUB
+## ═══════════════════════════════════════════════════════════════
 
-label sandbox_room_do_action:
-    call expression "action_home_" + _sandbox_action
-    jump sandbox_room_loop
+## Driver: loops via jump, no call screen — safe
+label sandbox_hub_driver:
+    call sandbox_hub_screen
+    if _sandbox_next == "goto_map":
+        jump sandbox_map_driver
+    elif _sandbox_next == "talk":
+        call expression "talk_" + _sandbox_val
+    elif _sandbox_next == "action":
+        call expression "action_" + current_location + "_" + _sandbox_val
+    elif _sandbox_next == "wait":
+        $ advance_time(1)
+        python:
+            p = time_period
+            icons = ["☀️","🌤️","🌇","🌙"]
+            names = ["Morning","Afternoon","Evening","Night"]
+        "[icons[p]] Time passes. It's now [names[p]]."
+    jump sandbox_hub_driver
 
-label sandbox_room_do_wait:
-    $ advance_time(1)
-    python:
-        p = time_period
-        icons = ["☀️","🌤️","🌇","🌙"]
-        names = ["Morning","Afternoon","Evening","Night"]
-    "[icons[p]] Time passes. It's now [names[p]]."
-    jump sandbox_room_loop
-
-## ── LOCATION HUB LOOP ────────────────────────────────────────────
-label sandbox_hub_loop:
+## Screen label: contains call screen, always returns
+label sandbox_hub_screen:
     $ lc_set_bg(current_location)
     python:
         _npcs_here   = npcs_at_location(current_location)
         _loc_actions = get_location_actions(current_location)
     call screen lc_location_hub(loc_id=current_location, npcs_here=_npcs_here, loc_actions=_loc_actions)
-    python:
-        _res = _return[0]
-        _val = _return[1] if len(_return) > 1 else None
-    if _res == "goto_map":
-        jump sandbox_map_loop
-    if _res == "talk":
-        $ _sandbox_target = _val
-        jump sandbox_hub_do_talk
-    if _res == "action":
-        $ _sandbox_action = _val
-        jump sandbox_hub_do_action
-    if _res == "wait":
-        jump sandbox_hub_do_wait
-    jump sandbox_hub_loop
+    $ _sandbox_next = _return[0]
+    $ _sandbox_val  = _return[1] if len(_return) > 1 else ""
+    return
 
-label sandbox_hub_do_talk:
-    call expression "talk_" + _sandbox_target
-    jump sandbox_hub_loop
-
-label sandbox_hub_do_action:
-    call expression "action_" + current_location + "_" + _sandbox_action
-    jump sandbox_hub_loop
-
-label sandbox_hub_do_wait:
-    $ advance_time(1)
-    python:
-        p = time_period
-        icons = ["☀️","🌤️","🌇","🌙"]
-        names = ["Morning","Afternoon","Evening","Night"]
-    "[icons[p]] Time passes. It's now [names[p]]."
-    jump sandbox_hub_loop
+## ── COMPATIBILITY ────────────────────────────────────────────────
+## Keep old label names working as aliases
+label sandbox_room_loop:
+    jump sandbox_room_driver
+label sandbox_hub_loop:
+    jump sandbox_hub_driver
+label sandbox_map_loop:
+    jump sandbox_map_driver
 
 ## ── HOME ACTIONS ─────────────────────────────────────────────────
 label action_home_sleep:
@@ -243,13 +248,13 @@ label action_home_cook:
     $ add_stat("energy", 50)
     $ add_stat("happiness", 10)
     $ advance_time(1)
-    "A real meal. Worth the time. +50 energy."
+    "A real meal. +50 energy."
     return
 
 label action_home_tv:
     $ add_stat("happiness", 10)
     $ advance_time(1)
-    "Two episodes. Nothing important. +10 happiness."
+    "Two episodes. +10 happiness."
     return
 
 label action_home_games:
@@ -261,14 +266,14 @@ label action_home_games:
 label action_home_relax:
     $ add_stat("happiness", 6)
     $ add_stat("energy", 5)
-    "Just being still. +6 happiness."
+    "Just being still."
     return
 
 label action_home_shower:
     $ add_stat("charm", 10)
     $ add_stat("energy", 10)
     $ advance_time(1)
-    "Hot shower. +10 charm, +10 energy."
+    "Hot shower. +10 charm."
     return
 
 label action_home_glam:
@@ -286,12 +291,12 @@ label action_home_mirror:
 label action_home_garden:
     $ add_stat("happiness", 10)
     $ advance_time(1)
-    "An hour with the plants. +10 happiness."
+    "An hour with the plants."
     return
 
 label action_home_sit:
     $ add_stat("happiness", 8)
-    "The garden in the afternoon. The light does something good."
+    "The garden in the afternoon."
     return
 
 ## ── LOCATION ACTIONS ─────────────────────────────────────────────
@@ -354,7 +359,7 @@ label action_park_jog:
 label action_park_sit:
     $ add_stat("happiness", 8)
     $ advance_time(1)
-    "The bench is warm. +8 happiness."
+    "The bench is warm."
     return
 
 label action_park_flowers:
@@ -379,7 +384,7 @@ label action_library_research:
 label action_library_rest:
     $ add_stat("energy", 10)
     $ advance_time(1)
-    "The armchair in the corner. +10 energy."
+    "The armchair in the corner."
     return
 
 label action_mall_shop:
@@ -404,9 +409,9 @@ label action_clinic_checkup:
     if stat_money >= 30:
         $ add_stat("energy", 20)
         $ stat_money -= 30
-        "The doctor clears you. +20 energy."
+        "The doctor clears you."
     else:
-        "You need $30 for a check-up."
+        "You need $30."
     return
 
 label action_clinic_therapy:
@@ -434,7 +439,7 @@ label action_bar_dance:
 label action_bar_watch:
     $ add_stat("happiness", 15)
     $ advance_time(1)
-    "The DJ is good. +15 happiness."
+    "The DJ is good."
     return
 
 label action_school_class:
@@ -462,7 +467,7 @@ label action_salon_haircut:
         $ add_stat("charm", 8)
         $ stat_money -= 40
         $ advance_time(1)
-        "The stylist does something right. +8 charm."
+        "The stylist does something right."
     else:
         "You need $40."
     return
@@ -472,7 +477,7 @@ label action_salon_makeup:
         $ add_stat("charm", 10)
         $ stat_money -= 30
         $ advance_time(1)
-        "You look in the mirror. Better. +10 charm."
+        "You look in the mirror. Better."
     else:
         "You need $30."
     return
@@ -481,7 +486,7 @@ label action_salon_nails:
     if stat_money >= 25:
         $ add_stat("charm", 6)
         $ stat_money -= 25
-        "Small thing. Big impact. +6 charm."
+        "Small thing. Big impact."
     else:
         "You need $25."
     return
@@ -496,7 +501,7 @@ label event_therapy_nudge:
     thought "I keep thinking about the clinic."
     return
 
-## ── COMPATIBILITY STUBS ──────────────────────────────────────────
+## ── STUBS ────────────────────────────────────────────────────────
 label set_background(loc_id, room_id=None):
     $ lc_set_bg(loc_id, room_id)
     return

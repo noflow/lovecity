@@ -98,7 +98,7 @@ label lc_start:
     $ time_period      = 0
 
     ## Jump cleanly into sandbox — zero pending call frames on the stack
-    jump sandbox_room_loop
+    jump sandbox_room_driver
 
 
 ## ── MEET MOM ────────────────────────────────────────────────────
