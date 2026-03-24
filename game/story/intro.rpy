@@ -333,6 +333,3 @@ label talk_ronnie:
     return
 
 ## Default stub for any unwritten character
-label talk_default:
-    narrator "They nod at you. Not unfriendly, but busy."
-    return
