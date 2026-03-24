@@ -116,7 +116,22 @@ label sandbox_room_enter_event:
     ## Check for one-time room entry events
     if current_room == "kitchen" and time_day == 1 and time_period == 0 and not flag_met_sister:
         $ flag_met_sister = True
-        call meet_sister_intro
+        show sister at right with dissolve
+        sister "Oh — you actually came in here."
+        mc "Morning."
+        sister "You look nervous."
+        menu:
+            "I'm not nervous.":
+                sister "Your left eye is doing that thing."
+                $ add_rel("sister", 3)
+            "A little, maybe.":
+                sister "Don't be. They're just people."
+                $ add_rel("sister", 6)
+                $ add_stat("confidence", 3)
+            "I'm fine. Mind your business.":
+                sister "Rude. Good luck anyway."
+                $ add_rel("sister", 1)
+        hide sister with dissolve
     jump sandbox_room_loop
 
 label sandbox_room_talk:
