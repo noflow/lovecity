@@ -41,7 +41,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
         xpos    -14
         background "#07071088"
         padding    (10, 7)
-        textbutton "🗺️ Map":
+        textbutton "🌍 Outside":
             action Function(renpy.return_statement, ("goto_map", None))
             text_color       "#94a3b8"
             text_hover_color "#60a5fa"
@@ -97,7 +97,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
             padding    (30, 16)
             text "Nobody here right now." color "#334155" italic True size 15 xalign 0.5
 
-    # Bottom panel — actions + wait + stats strip
+    # Bottom panel — actions + wait + outside + stats strip
     frame:
         xfill      True
         yalign     1.0
@@ -105,11 +105,11 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
         padding    (16, 12)
         vbox:
             spacing 8
-            # Action buttons
-            if loc_actions:
-                hbox:
-                    spacing 8
-                    xfill True
+            # Action buttons row
+            hbox:
+                spacing 8
+                xfill True
+                if loc_actions:
                     for action_id, action_label in loc_actions:
                         textbutton "[action_label]":
                             action Function(renpy.return_statement, ("action", action_id))
@@ -118,14 +118,21 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                             background       "#1e293b"
                             hover_background "#334155"
                             padding          (10, 8)
-                    null xfill True
-                    textbutton "⏭️ Wait":
-                        action Function(renpy.return_statement, ("wait", None))
-                        text_color       "#94a3b8"
-                        text_hover_color "#fbbf24"
-                        background       "#1e293b55"
-                        hover_background "#334155"
-                        padding          (10, 8)
+                null xfill True
+                textbutton "⏭️ Wait":
+                    action Function(renpy.return_statement, ("wait", None))
+                    text_color       "#94a3b8"
+                    text_hover_color "#fbbf24"
+                    background       "#1e293b55"
+                    hover_background "#334155"
+                    padding          (10, 8)
+                textbutton "🌍 Outside":
+                    action Function(renpy.return_statement, ("goto_map", None))
+                    text_color       "#60a5fa"
+                    text_hover_color "#e2e8f0"
+                    background       "#1e293b"
+                    hover_background "#334155"
+                    padding          (10, 8)
             # Stat strip
             hbox:
                 spacing 20
@@ -180,7 +187,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
         xpos    -14
         background "#07071088"
         padding    (10, 7)
-        textbutton "🗺️ Map":
+        textbutton "🌍 Outside":
             action Function(renpy.return_statement, ("goto_map", None))
             text_color       "#94a3b8"
             text_hover_color "#60a5fa"
@@ -239,10 +246,10 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
             spacing 8
 
             # Action buttons for this room
-            if room_actions:
-                hbox:
-                    spacing 8
-                    xfill True
+            hbox:
+                spacing 8
+                xfill True
+                if room_actions:
                     for action_id, action_label in room_actions:
                         textbutton "[action_label]":
                             action Function(renpy.return_statement, ("action", action_id))
@@ -251,16 +258,16 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                             background       "#1e293b"
                             hover_background "#334155"
                             padding          (10, 8)
-                    null xfill True
-                    textbutton "⏭️ Wait":
-                        action Function(renpy.return_statement, ("wait", None))
-                        text_color       "#94a3b8"
-                        text_hover_color "#fbbf24"
-                        background       "#1e293b55"
-                        hover_background "#334155"
-                        padding          (10, 8)
+                null xfill True
+                textbutton "⏭️ Wait":
+                    action Function(renpy.return_statement, ("wait", None))
+                    text_color       "#94a3b8"
+                    text_hover_color "#fbbf24"
+                    background       "#1e293b55"
+                    hover_background "#334155"
+                    padding          (10, 8)
 
-            # Room navigation bar — all rooms except current
+            # Room navigation bar — other rooms + Outside button
             hbox:
                 spacing 6
                 xfill True
@@ -268,7 +275,6 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                     other_rooms = [(rid, rinfo) for rid, rinfo in HOME_ROOMS.items() if rid != current_room_id]
                 for room_id, rinfo in other_rooms:
                     python:
-                        # Check if an NPC is in that room
                         npc_there = []
                         for nid in ["mom", "sister"]:
                             nloc, nroom, _ = get_npc_location(nid)
@@ -282,6 +288,14 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                         background       ("#f472b611" if has_npc else "#0f172a")
                         hover_background "#1e293b"
                         padding          (10, 7)
+                # Outside always at the end of the room nav bar
+                textbutton "🌍 Outside":
+                    action Function(renpy.return_statement, ("goto_map", None))
+                    text_color       "#60a5fa"
+                    text_hover_color "#e2e8f0"
+                    background       "#1e293b"
+                    hover_background "#334155"
+                    padding          (10, 7)
 
             # Stat strip
             hbox:
