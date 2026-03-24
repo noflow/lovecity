@@ -19,11 +19,11 @@ label lc_start:
     $ flag_intro_done = True
 
     # Go to kitchen
-    scene bg_kitchen with dissolve
+    ## scene removed — background handled by sandbox set_background
 
     call meet_mom_intro
 
-    scene bg_bedroom with dissolve
+    ## scene removed — background handled by sandbox set_background
 
     narrator "You go back to your room. Get dressed. Pack your bag."
     narrator "The day is out there."
@@ -91,7 +91,7 @@ label check_intro_events:
 
 ## ── MEET SISTER ─────────────────────────────────────────────────
 label meet_sister_intro:
-    scene bg_kitchen with dissolve
+    ## scene removed — background handled by sandbox set_background
     show sister at right with dissolve
 
     sister "Finally. I thought you died."
@@ -126,7 +126,7 @@ label meet_sister_intro:
 
 ## ── MEET CORA (neighbour, triggered when leaving home) ──────────
 label meet_cora:
-    scene bg_street with dissolve
+    ## scene removed — background handled by sandbox set_background
     show cora at center with dissolve
 
     narrator "The woman from next door is at her letterbox. She looks up."

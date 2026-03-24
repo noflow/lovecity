@@ -35,7 +35,6 @@ label sandbox_home_hub:
 ## The main home loop — shows lc_home_room screen with room nav bar
 label sandbox_room_loop:
     call set_background("home", current_room)
-    call check_room_event(current_room)
     python:
         room_actions = get_room_actions(current_room)
         npcs_here    = []
@@ -58,7 +57,10 @@ label sandbox_room_loop:
         call sandbox_wait
         jump sandbox_room_loop
     elif result[0] == "goto_room":
+        ## Switch room — set background then check entry event ONCE before showing screen
         $ current_room = result[1]
+        call set_background("home", current_room)
+        call check_room_event(current_room)
         jump sandbox_room_loop
     elif result[0] == "goto_map":
         jump sandbox_loop

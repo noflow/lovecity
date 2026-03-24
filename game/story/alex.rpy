@@ -5,7 +5,7 @@
 ## ═══════════════════════════════════════════════════════════════
 
 label meet_alex_first:
-    scene bg_cafe with dissolve
+    ## scene bg_cafe with dissolve
     show alex at center with dissolve
 
     narrator "She's behind the counter. Writing something on a napkin."
@@ -45,7 +45,7 @@ label meet_alex_first:
 
 
 label meet_alex_regular:
-    scene bg_cafe with dissolve
+    ## scene bg_cafe with dissolve
     show alex at center with dissolve
     python:
         rel = get_rel("alex")

@@ -3,7 +3,7 @@
 
 ## ── MAYA ─────────────────────────────────────────────────────
 label meet_maya_first:
-    scene bg_school with dissolve
+    ## scene bg_school with dissolve
     show maya at right with dissolve
 
     narrator "She's in the hallway after class. Textbook under one arm, phone in the other."
@@ -42,7 +42,7 @@ label meet_maya_first:
 
 
 label meet_maya_regular:
-    scene bg_school with dissolve
+    ## scene bg_school with dissolve
     show maya at right with dissolve
     python:
         rel = get_rel("maya")
@@ -97,7 +97,7 @@ label meet_maya_regular:
 
 ## ── KAI ──────────────────────────────────────────────────────
 label meet_kai_first:
-    scene bg_gym with dissolve
+    ## scene bg_gym with dissolve
     show kai at center with dissolve
 
     narrator "The gym is busier than you expected."

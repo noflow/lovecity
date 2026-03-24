@@ -4,7 +4,7 @@
 ## ═══════════════════════════════════════════════════════════════
 
 label meet_luna_first:
-    scene bg_clinic with dissolve
+    ## scene bg_clinic with dissolve
     show luna at right with dissolve
 
     narrator "The clinic corridor at 9 PM is very different from 9 AM."

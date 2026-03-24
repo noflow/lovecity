@@ -4,7 +4,7 @@
 ## ═══════════════════════════════════════════════════════════════
 
 label meet_dr_rivera:
-    scene bg_clinic with dissolve
+    ## scene bg_clinic with dissolve
     show dr_rivera at center with dissolve
 
     narrator "The receptionist sends you down a quiet corridor."
@@ -83,7 +83,7 @@ label meet_dr_rivera:
 
 ## ── REGULAR THERAPY SESSIONS ────────────────────────────────────
 label therapy_session_regular:
-    scene bg_clinic with dissolve
+    ## scene bg_clinic with dissolve
     show dr_rivera at center with dissolve
     python:
         rel = get_rel("dr_rivera")
