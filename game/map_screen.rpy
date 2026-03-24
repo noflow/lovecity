@@ -57,7 +57,7 @@ screen lc_map():
             padding (4, 4)
 
             button:
-                action [Function(setattr, store, "current_location", loc_id), Function(renpy.return_statement, ("travel", None))]
+                action [SetVariable("current_location", loc_id), Return(("travel", None))]
                 sensitive is_open
                 xfill True
                 yfill True
@@ -137,28 +137,28 @@ screen lc_map():
         hbox:
             spacing 8
             textbutton "⏭️ Wait":
-                action Function(renpy.return_statement, ("wait", None))
+                action Return(("wait", None))
                 text_color       "#94a3b8"
                 text_hover_color "#fbbf24"
                 background       "#1e293b"
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "📊 Stats":
-                action Function(renpy.show_screen, "lc_stats_screen")
+                action ShowScreen("lc_stats_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#60a5fa"
                 background       "#1e293b"
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "📓 Diary":
-                action Function(renpy.show_screen, "lc_diary_screen")
+                action ShowScreen("lc_diary_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#fbbf24"
                 background       "#1e293b"
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "💕 Relations":
-                action Function(renpy.show_screen, "lc_rel_screen")
+                action ShowScreen("lc_rel_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#f472b6"
                 background       "#1e293b"
@@ -184,7 +184,7 @@ screen hud_map():
             text "⚡ [stat_energy]%"      color "#fbbf24" size 14 yalign 0.5
             text "😊 [stat_happiness]%"   color "#f472b6" size 14 yalign 0.5
             null width 8
-            textbutton "≡" action Function(renpy.show_screen, "lc_pause_menu") text_color "#94a3b8" text_hover_color "#f472b6" background "#1e293b" padding (10, 6)
+            textbutton "≡" action ShowScreen("lc_pause_menu") text_color "#94a3b8" text_hover_color "#f472b6" background "#1e293b" padding (10, 6)
 
 ## ── PAUSE MENU ──────────────────────────────────────────────────
 screen lc_pause_menu():
@@ -201,9 +201,9 @@ screen lc_pause_menu():
             spacing 10
             text "LoveCity" color "#f472b6" bold True size 22 xalign 0.5
             null height 6
-            textbutton "▶  Continue" action Function(renpy.hide_screen, "lc_pause_menu") xalign 0.5 text_color "#e2e8f0" text_hover_color "#f472b6" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
-            textbutton "💾  Save" action [Function(renpy.hide_screen, "lc_pause_menu"), Function(renpy.show_screen, "save")] xalign 0.5 text_color "#e2e8f0" text_hover_color "#34d399" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
-            textbutton "📂  Load" action [Function(renpy.hide_screen, "lc_pause_menu"), Function(renpy.show_screen, "load")] xalign 0.5 text_color "#e2e8f0" text_hover_color "#60a5fa" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
-            textbutton "⚙️  Preferences" action [Function(renpy.hide_screen, "lc_pause_menu"), Function(renpy.show_screen, "preferences")] xalign 0.5 text_color "#94a3b8" text_hover_color "#94a3b8" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "▶  Continue" action HideScreen("lc_pause_menu") xalign 0.5 text_color "#e2e8f0" text_hover_color "#f472b6" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "💾  Save" action [HideScreen("lc_pause_menu"), ShowScreen("save")] xalign 0.5 text_color "#e2e8f0" text_hover_color "#34d399" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "📂  Load" action [HideScreen("lc_pause_menu"), ShowScreen("load")] xalign 0.5 text_color "#e2e8f0" text_hover_color "#60a5fa" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
+            textbutton "⚙️  Preferences" action [HideScreen("lc_pause_menu"), ShowScreen("preferences")] xalign 0.5 text_color "#94a3b8" text_hover_color "#94a3b8" background "#1e293b" hover_background "#334155" padding (14, 9) xminimum 200
             null height 4
-            textbutton "🚪  Main Menu" action Function(renpy.full_restart) xalign 0.5 text_color "#475569" text_hover_color "#ef4444" background "#0f172a" hover_background "#1e293b" padding (14, 9) xminimum 200
+            textbutton "🚪  Main Menu" action MainMenu() xalign 0.5 text_color "#475569" text_hover_color "#ef4444" background "#0f172a" hover_background "#1e293b" padding (14, 9) xminimum 200

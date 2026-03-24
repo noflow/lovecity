@@ -42,7 +42,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
         background "#07071088"
         padding    (10, 7)
         textbutton "🌍 Outside":
-            action Function(renpy.return_statement, ("goto_map", None))
+            action Return(("goto_map", None))
             text_color       "#94a3b8"
             text_hover_color "#60a5fa"
             background       "#1e293b"
@@ -70,7 +70,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                     hover_background "#f472b622"
                     padding (0, 0)
                     button:
-                        action Function(renpy.return_statement, ("talk", npc_id))
+                        action Return(("talk", npc_id))
                         xfill True
                         yfill True
                         vbox:
@@ -112,7 +112,7 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                 if loc_actions:
                     for action_id, action_label in loc_actions:
                         textbutton "[action_label]":
-                            action Function(renpy.return_statement, ("action", action_id))
+                            action Return(("action", action_id))
                             text_color       "#94a3b8"
                             text_hover_color "#e2e8f0"
                             background       "#1e293b"
@@ -120,14 +120,14 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                             padding          (10, 8)
                 null xfill True
                 textbutton "⏭️ Wait":
-                    action Function(renpy.return_statement, ("wait", None))
+                    action Return(("wait", None))
                     text_color       "#94a3b8"
                     text_hover_color "#fbbf24"
                     background       "#1e293b55"
                     hover_background "#334155"
                     padding          (10, 8)
                 textbutton "🌍 Outside":
-                    action Function(renpy.return_statement, ("goto_map", None))
+                    action Return(("goto_map", None))
                     text_color       "#60a5fa"
                     text_hover_color "#e2e8f0"
                     background       "#1e293b"
@@ -188,7 +188,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
         background "#07071088"
         padding    (10, 7)
         textbutton "🌍 Outside":
-            action Function(renpy.return_statement, ("goto_map", None))
+            action Return(("goto_map", None))
             text_color       "#94a3b8"
             text_hover_color "#60a5fa"
             background       "#1e293b"
@@ -216,7 +216,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                     hover_background "#f472b622"
                     padding (0, 0)
                     button:
-                        action Function(renpy.return_statement, ("talk", npc_id))
+                        action Return(("talk", npc_id))
                         xfill True
                         yfill True
                         vbox:
@@ -252,7 +252,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                 if room_actions:
                     for action_id, action_label in room_actions:
                         textbutton "[action_label]":
-                            action Function(renpy.return_statement, ("action", action_id))
+                            action Return(("action", action_id))
                             text_color       "#94a3b8"
                             text_hover_color "#e2e8f0"
                             background       "#1e293b"
@@ -260,7 +260,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                             padding          (10, 8)
                 null xfill True
                 textbutton "⏭️ Wait":
-                    action Function(renpy.return_statement, ("wait", None))
+                    action Return(("wait", None))
                     text_color       "#94a3b8"
                     text_hover_color "#fbbf24"
                     background       "#1e293b55"
@@ -282,7 +282,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                                 npc_there.append(nid)
                         has_npc = len(npc_there) > 0
                     textbutton "[rinfo['icon']] [rinfo['name']]":
-                        action Function(renpy.return_statement, ("goto_room", room_id))
+                        action Return(("goto_room", room_id))
                         text_color       ("#f472b6" if has_npc else "#94a3b8")
                         text_hover_color "#e2e8f0"
                         background       ("#f472b611" if has_npc else "#0f172a")
@@ -290,7 +290,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                         padding          (10, 7)
                 # Outside always at the end of the room nav bar
                 textbutton "🌍 Outside":
-                    action Function(renpy.return_statement, ("goto_map", None))
+                    action Return(("goto_map", None))
                     text_color       "#60a5fa"
                     text_hover_color "#e2e8f0"
                     background       "#1e293b"
