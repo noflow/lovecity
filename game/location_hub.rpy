@@ -269,8 +269,8 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
 
             # Room navigation bar — other rooms + Outside button
             hbox:
-                spacing 6
-                xfill True
+                spacing 12
+                xalign 0.5
                 python:
                     other_rooms = [(rid, rinfo) for rid, rinfo in HOME_ROOMS.items() if rid != current_room_id]
                 for room_id, rinfo in other_rooms:
@@ -280,22 +280,61 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                             nloc, nroom, _ = get_npc_location(nid)
                             if nloc == "home" and (nroom == room_id or nroom is None):
                                 npc_there.append(nid)
-                        has_npc = len(npc_there) > 0
-                    textbutton "[rinfo['icon']] [rinfo['name']]":
-                        action Return(("goto_room", room_id))
-                        text_color       ("#f472b6" if has_npc else "#94a3b8")
-                        text_hover_color "#e2e8f0"
-                        background       ("#f472b611" if has_npc else "#0f172a")
-                        hover_background "#1e293b"
-                        padding          (10, 7)
-                # Outside always at the end of the room nav bar
-                textbutton "🌍 Outside":
+                        has_npc   = len(npc_there) > 0
+                        nav_idle  = "backgrounds/nav_" + room_id + ".webp"
+                        nav_hover = "backgrounds/nav_" + room_id + "_hover.webp"
+                        has_img   = renpy.loadable(nav_idle)
+                        has_hover = renpy.loadable(nav_hover)
+
+                    if has_img:
+                        ## Custom image button
+                        frame:
+                            background None
+                            padding (0, 0)
+                            imagebutton:
+                                idle  nav_idle
+                                hover (nav_hover if has_hover else nav_idle)
+                                action Return(("goto_room", room_id))
+                                xsize 120
+                                ysize 112
+                                fit  "contain"
+                    else:
+                        ## Fallback circular styled button
+                        button:
+                            action Return(("goto_room", room_id))
+                            xsize 120
+                            ysize 112
+                            background Solid("#1e293b")
+                            hover_background Solid("#334155")
+                            vbox:
+                                xalign 0.5
+                                yalign 0.5
+                                text rinfo['icon']:
+                                    size   26
+                                    xalign 0.5
+                                text rinfo['name']:
+                                    size       11
+                                    xalign     0.5
+                                    text_align 0.5
+                                    color      ("#f472b6" if has_npc else "#94a3b8")
+
+                # Outside button — styled circular to match
+                button:
                     action Return(("goto_map", None))
-                    text_color       "#60a5fa"
-                    text_hover_color "#e2e8f0"
-                    background       "#1e293b"
-                    hover_background "#334155"
-                    padding          (10, 7)
+                    xsize 120
+                    ysize 112
+                    background Solid("#0f1e35")
+                    hover_background Solid("#1e3a5f")
+                    vbox:
+                        xalign 0.5
+                        yalign 0.5
+                        text "🌍":
+                            size   28
+                            xalign 0.5
+                        text "Outside":
+                            size   11
+                            xalign 0.5
+                            color  "#60a5fa"
 
             # Stat strip
             hbox:
