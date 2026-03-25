@@ -80,7 +80,7 @@ screen lc_map():
             padding (4, 4)
 
             button:
-                action [SetVariable("current_location", loc_id), Return(("travel", None))]
+                action [Function(setattr, store, "current_location", loc_id), Return(("travel", None))]
                 sensitive is_open
                 xfill True
                 yfill True
@@ -205,32 +205,32 @@ screen lc_pause_menu():
             text "LoveCity" color "#f472b6" bold True size 22 xalign 0.5
             null height 6
             textbutton "▶  Continue":
-                action Function(_hide_screen, "lc_pause_menu")
+                action Function(lc_hide_screen, "lc_pause_menu")
                 xalign 0.5
                 text_color "#e2e8f0" text_hover_color "#f472b6"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             textbutton "💾  Save":
-                action [Function(_hide_screen, "lc_pause_menu"), Function(_show_menu, "save")]
+                action [Function(lc_hide_screen, "lc_pause_menu"), Function(lc_show_menu, "save")]
                 xalign 0.5
                 text_color "#e2e8f0" text_hover_color "#34d399"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             textbutton "📂  Load":
-                action [Function(_hide_screen, "lc_pause_menu"), Function(_show_menu, "load")]
+                action [Function(lc_hide_screen, "lc_pause_menu"), Function(lc_show_menu, "load")]
                 xalign 0.5
                 text_color "#e2e8f0" text_hover_color "#60a5fa"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             textbutton "⚙️  Preferences":
-                action [Function(_hide_screen, "lc_pause_menu"), Function(_show_menu, "preferences")]
+                action [Function(lc_hide_screen, "lc_pause_menu"), Function(lc_show_menu, "preferences")]
                 xalign 0.5
                 text_color "#94a3b8" text_hover_color "#94a3b8"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             null height 4
             textbutton "🚪  Main Menu":
-                action Function(renpy.full_restart)
+                action Function(lc_main_menu)
                 xalign 0.5
                 text_color "#475569" text_hover_color "#ef4444"
                 background "#0f172a" hover_background "#1e293b"
