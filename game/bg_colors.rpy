@@ -28,28 +28,23 @@ init python:
     }
 
 ## ── IMAGE DECLARATIONS ──────────────────────────────────────────
-## Once you have real background images, uncomment and adjust paths.
-## Images should be 1280x720px, placed in game/backgrounds/
+## Each bg_X image tries the file first, falls back to a solid color.
+## When you add a real image file, Ren'Py will use it automatically.
 
-image bg_bedroom    = "backgrounds/bedroom.webp"
-# image bg_kitchen    = "backgrounds/kitchen.jpg"
-# image bg_livingroom = "backgrounds/livingroom.jpg"
-# image bg_cafe       = "backgrounds/cafe.jpg"
-# image bg_park       = "backgrounds/park.jpg"
-# image bg_school     = "backgrounds/school.jpg"
-# image bg_clinic     = "backgrounds/clinic.jpg"
-# image bg_gym        = "backgrounds/gym.jpg"
-# image bg_bar        = "backgrounds/bar.jpg"
-# image bg_library    = "backgrounds/library.jpg"
-# image bg_mall       = "backgrounds/mall.jpg"
-# image bg_salon      = "backgrounds/salon.jpg"
-# image bg_street     = "backgrounds/street.jpg"
-# image bg_home       = "backgrounds/home.jpg"
-# image bg_office     = "backgrounds/office.jpg"
-# image bg_garden     = "backgrounds/garden.jpg"
-# image bg_bathroom   = "backgrounds/bathroom.jpg"
-
-## ── ADDING EXISTING BEDROOM IMAGE ───────────────────────────────
-## You already have bedroom.webp from the Vite project.
-## Copy it to: game/backgrounds/bedroom.webp
-## Then uncomment the bg_bedroom line above.
+image bg_bedroom    = "backgrounds/bedroom.webp" if renpy.loadable("backgrounds/bedroom.webp") else Solid("#1a1230")
+image bg_kitchen    = "backgrounds/kitchen.webp"    if renpy.loadable("backgrounds/kitchen.webp")    else "backgrounds/kitchen.jpg"    if renpy.loadable("backgrounds/kitchen.jpg")    else Solid("#251808")
+image bg_livingroom = "backgrounds/livingroom.webp" if renpy.loadable("backgrounds/livingroom.webp") else "backgrounds/livingroom.jpg" if renpy.loadable("backgrounds/livingroom.jpg") else Solid("#1a1520")
+image bg_bathroom   = "backgrounds/bathroom.webp"   if renpy.loadable("backgrounds/bathroom.webp")   else "backgrounds/bathroom.jpg"   if renpy.loadable("backgrounds/bathroom.jpg")   else Solid("#0a2030")
+image bg_garden     = "backgrounds/garden.webp"     if renpy.loadable("backgrounds/garden.webp")     else "backgrounds/garden.jpg"     if renpy.loadable("backgrounds/garden.jpg")     else Solid("#1e350a")
+image bg_home       = "backgrounds/home.webp"       if renpy.loadable("backgrounds/home.webp")       else "backgrounds/home.jpg"       if renpy.loadable("backgrounds/home.jpg")       else Solid("#1a1230")
+image bg_school     = "backgrounds/school.webp"     if renpy.loadable("backgrounds/school.webp")     else "backgrounds/school.jpg"     if renpy.loadable("backgrounds/school.jpg")     else Solid("#0f1e35")
+image bg_cafe       = "backgrounds/cafe.webp"       if renpy.loadable("backgrounds/cafe.webp")       else "backgrounds/cafe.jpg"       if renpy.loadable("backgrounds/cafe.jpg")       else Solid("#3b2010")
+image bg_mall       = "backgrounds/mall.webp"       if renpy.loadable("backgrounds/mall.webp")       else "backgrounds/mall.jpg"       if renpy.loadable("backgrounds/mall.jpg")       else Solid("#3b1e5f")
+image bg_park       = "backgrounds/park.webp"       if renpy.loadable("backgrounds/park.webp")       else "backgrounds/park.jpg"       if renpy.loadable("backgrounds/park.jpg")       else Solid("#0f2e1a")
+image bg_clinic     = "backgrounds/clinic.webp"     if renpy.loadable("backgrounds/clinic.webp")     else "backgrounds/clinic.jpg"     if renpy.loadable("backgrounds/clinic.jpg")     else Solid("#1a2e3b")
+image bg_gym        = "backgrounds/gym.webp"        if renpy.loadable("backgrounds/gym.webp")        else "backgrounds/gym.jpg"        if renpy.loadable("backgrounds/gym.jpg")        else Solid("#2e1a1a")
+image bg_office     = "backgrounds/office.webp"     if renpy.loadable("backgrounds/office.webp")     else "backgrounds/office.jpg"     if renpy.loadable("backgrounds/office.jpg")     else Solid("#1a1e2e")
+image bg_bar        = "backgrounds/bar.webp"        if renpy.loadable("backgrounds/bar.webp")        else "backgrounds/bar.jpg"        if renpy.loadable("backgrounds/bar.jpg")        else Solid("#1a0a2e")
+image bg_library    = "backgrounds/library.webp"    if renpy.loadable("backgrounds/library.webp")    else "backgrounds/library.jpg"    if renpy.loadable("backgrounds/library.jpg")    else Solid("#2e1e0a")
+image bg_salon      = "backgrounds/salon.webp"      if renpy.loadable("backgrounds/salon.webp")      else "backgrounds/salon.jpg"      if renpy.loadable("backgrounds/salon.jpg")      else Solid("#2e0a1e")
+image bg_street     = "backgrounds/street.webp"     if renpy.loadable("backgrounds/street.webp")     else "backgrounds/street.jpg"     if renpy.loadable("backgrounds/street.jpg")     else Solid("#1a1a20")

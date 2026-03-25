@@ -39,8 +39,18 @@ init python:
             "garden":"bg_garden",
         }
         key = bg_map.get(room_id or loc_id, bg_map.get(loc_id, "bg_default"))
+        color = bg_colors.get(key, "#0a0a1e")
         store._current_bg_key   = key
-        store._current_bg_color = bg_colors.get(key, "#0a0a1e")
+        store._current_bg_color = color
+
+        # Show the background using renpy.show — persists during dialogue
+        # Uses the named image (declared in bg_colors.rpy) if available,
+        # otherwise falls back to a solid color
+        if renpy.has_image(key):
+            renpy.show(key, layer="master", zorder=0)
+        else:
+            # Fallback: create a solid color image on the fly
+            renpy.show("_bg_color", what=Solid(color), layer="master", zorder=0)
 
     def get_room_actions(room_id):
         return {
@@ -117,8 +127,10 @@ label sandbox_room_driver:
         $ current_room = _sandbox_val
         call sandbox_room_enter_event
     elif _sandbox_next == "talk":
+        $ lc_set_bg("home", current_room)
         call expression "talk_" + _sandbox_val
     elif _sandbox_next == "action":
+        $ lc_set_bg("home", current_room)
         call expression "action_home_" + _sandbox_val
     elif _sandbox_next == "wait":
         $ advance_time(1)
@@ -175,8 +187,10 @@ label sandbox_hub_driver:
     if _sandbox_next == "goto_map":
         jump sandbox_map_driver
     elif _sandbox_next == "talk":
+        $ lc_set_bg(current_location)
         call expression "talk_" + _sandbox_val
     elif _sandbox_next == "action":
+        $ lc_set_bg(current_location)
         call expression "action_" + current_location + "_" + _sandbox_val
     elif _sandbox_next == "wait":
         $ advance_time(1)
