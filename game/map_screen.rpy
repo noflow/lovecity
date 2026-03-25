@@ -57,7 +57,7 @@ screen lc_map():
             text "😊 [stat_happiness]%" color "#f472b6" size 14 yalign 0.5
             null width 8
             textbutton "≡":
-                action ShowScreen("lc_pause_menu")
+                action Function(_show_screen, "lc_pause_menu")
                 text_color       "#94a3b8"
                 text_hover_color "#f472b6"
                 background       "#1e293b"
@@ -167,21 +167,21 @@ screen lc_map():
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "📊 Stats":
-                action ShowScreen("lc_stats_screen")
+                action Function(_show_screen, "lc_stats_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#60a5fa"
                 background       "#1e293b"
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "📓 Diary":
-                action ShowScreen("lc_diary_screen")
+                action Function(_show_screen, "lc_diary_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#fbbf24"
                 background       "#1e293b"
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "💕 Relations":
-                action ShowScreen("lc_rel_screen")
+                action Function(_show_screen, "lc_rel_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#f472b6"
                 background       "#1e293b"
@@ -205,32 +205,32 @@ screen lc_pause_menu():
             text "LoveCity" color "#f472b6" bold True size 22 xalign 0.5
             null height 6
             textbutton "▶  Continue":
-                action HideScreen("lc_pause_menu")
+                action Function(_hide_screen, "lc_pause_menu")
                 xalign 0.5
                 text_color "#e2e8f0" text_hover_color "#f472b6"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             textbutton "💾  Save":
-                action [HideScreen("lc_pause_menu"), ShowMenu("save")]
+                action [Function(_hide_screen, "lc_pause_menu"), Function(_show_menu, "save")]
                 xalign 0.5
                 text_color "#e2e8f0" text_hover_color "#34d399"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             textbutton "📂  Load":
-                action [HideScreen("lc_pause_menu"), ShowMenu("load")]
+                action [Function(_hide_screen, "lc_pause_menu"), Function(_show_menu, "load")]
                 xalign 0.5
                 text_color "#e2e8f0" text_hover_color "#60a5fa"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             textbutton "⚙️  Preferences":
-                action [HideScreen("lc_pause_menu"), ShowMenu("preferences")]
+                action [Function(_hide_screen, "lc_pause_menu"), Function(_show_menu, "preferences")]
                 xalign 0.5
                 text_color "#94a3b8" text_hover_color "#94a3b8"
                 background "#1e293b" hover_background "#334155"
                 padding (14, 9) xminimum 200
             null height 4
             textbutton "🚪  Main Menu":
-                action MainMenu()
+                action Function(renpy.full_restart)
                 xalign 0.5
                 text_color "#475569" text_hover_color "#ef4444"
                 background "#0f172a" hover_background "#1e293b"

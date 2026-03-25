@@ -95,7 +95,7 @@ screen hud():
 
             # Menu button
             textbutton "≡":
-                action ShowScreen("lc_menu")
+                action Function(_show_screen, "lc_menu")
                 style "lc_button_small"
 
 ## ── MAIN MENU / PAUSE ───────────────────────────────────────────
@@ -113,23 +113,23 @@ screen lc_menu():
             action Return()
             style "lc_button" xalign 0.5
         textbutton "💾 Save Game":
-            action ShowScreen("save")
+            action Function(_show_screen, "save")
             style "lc_button" xalign 0.5
         textbutton "📂 Load Game":
-            action ShowScreen("load")
+            action Function(_show_screen, "load")
             style "lc_button" xalign 0.5
         textbutton "📊 Stats":
-            action ShowScreen("lc_stats_screen")
+            action Function(_show_screen, "lc_stats_screen")
             style "lc_button" xalign 0.5
         textbutton "📓 Diary":
-            action ShowScreen("lc_diary_screen")
+            action Function(_show_screen, "lc_diary_screen")
             style "lc_button" xalign 0.5
         textbutton "⚙️ Preferences":
-            action ShowScreen("preferences")
+            action Function(_show_screen, "preferences")
             style "lc_button" xalign 0.5
         null height 8
         textbutton "🚪 Main Menu":
-            action MainMenu()
+            action Function(renpy.full_restart)
             style "lc_button_small" xalign 0.5
 
 ## ── STATS SCREEN ────────────────────────────────────────────────
@@ -149,7 +149,7 @@ screen lc_stats_screen():
                 text "📊 Stats — [player_name]" style "lc_header"
                 null xfill True
                 textbutton "✕":
-                    action HideScreen("lc_stats_screen")
+                    action Function(_hide_screen, "lc_stats_screen")
                     style "lc_button_small"
             null height 8
 
@@ -195,7 +195,7 @@ screen lc_rel_screen():
                 text "💕 Relationships" style "lc_header"
                 null xfill True
                 textbutton "✕":
-                    action HideScreen("lc_rel_screen")
+                    action Function(_hide_screen, "lc_rel_screen")
                     style "lc_button_small"
             null height 6
             viewport:
@@ -246,7 +246,7 @@ screen lc_diary_screen():
                 text "📓 Diary" style "lc_header"
                 null xfill True
                 textbutton "✕":
-                    action HideScreen("lc_diary_screen")
+                    action Function(_hide_screen, "lc_diary_screen")
                     style "lc_button_small"
             viewport:
                 scrollbars "vertical"
