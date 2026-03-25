@@ -297,7 +297,6 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                                 action Return(("goto_room", room_id))
                                 xsize 120
                                 ysize 112
-                                fit  "contain"
                     else:
                         ## Fallback circular styled button
                         button:
