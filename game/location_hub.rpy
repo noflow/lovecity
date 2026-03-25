@@ -281,8 +281,8 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                             if nloc == "home" and (nroom == room_id or nroom is None):
                                 npc_there.append(nid)
                         has_npc   = len(npc_there) > 0
-                        nav_idle  = "backgrounds/nav_" + room_id + ".webp"
-                        nav_hover = "backgrounds/nav_" + room_id + "_hover.webp"
+                        nav_idle  = "gui/locationhub/nav_" + room_id + ".webp"
+                        nav_hover = "gui/locationhub/nav_" + room_id + "_hover.webp"
                         has_img   = renpy.loadable(nav_idle)
                         has_hover = renpy.loadable(nav_hover)
 
