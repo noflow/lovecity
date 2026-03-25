@@ -95,7 +95,7 @@ screen hud():
 
             # Menu button
             textbutton "≡":
-                action Function(_show_screen, "lc_menu")
+                action Function(lc_show_screen, "lc_menu")
                 style "lc_button_small"
 
 ## ── MAIN MENU / PAUSE ───────────────────────────────────────────
@@ -113,19 +113,19 @@ screen lc_menu():
             action Return()
             style "lc_button" xalign 0.5
         textbutton "💾 Save Game":
-            action Function(_show_screen, "save")
+            action Function(lc_show_screen, "save")
             style "lc_button" xalign 0.5
         textbutton "📂 Load Game":
-            action Function(_show_screen, "load")
+            action Function(lc_show_screen, "load")
             style "lc_button" xalign 0.5
         textbutton "📊 Stats":
-            action Function(_show_screen, "lc_stats_screen")
+            action Function(lc_show_screen, "lc_stats_screen")
             style "lc_button" xalign 0.5
         textbutton "📓 Diary":
-            action Function(_show_screen, "lc_diary_screen")
+            action Function(lc_show_screen, "lc_diary_screen")
             style "lc_button" xalign 0.5
         textbutton "⚙️ Preferences":
-            action Function(_show_screen, "preferences")
+            action Function(lc_show_screen, "preferences")
             style "lc_button" xalign 0.5
         null height 8
         textbutton "🚪 Main Menu":

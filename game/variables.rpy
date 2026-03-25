@@ -113,6 +113,13 @@ default diary = []
 # ── HELPER FUNCTIONS ────────────────────────────────────────────
 init python:
 
+    ## Screen action wrappers — work in ALL contexts (call screen, use, etc.)
+    ## Use these instead of ShowScreen/HideScreen/ShowMenu/MainMenu in action=
+    def lc_show_screen(name): renpy.show_screen(name)
+    def lc_hide_screen(name): renpy.hide_screen(name)
+    def lc_show_menu(name):   renpy.show_screen(name)
+    def lc_main_menu():       renpy.full_restart()
+
     def add_rel(char_id, amount):
         """Adjust a relationship value, clamped 0-200."""
         var = "rel_" + char_id

@@ -57,7 +57,7 @@ screen lc_map():
             text "😊 [stat_happiness]%" color "#f472b6" size 14 yalign 0.5
             null width 8
             textbutton "≡":
-                action Function(_show_screen, "lc_pause_menu")
+                action Function(lc_show_screen, "lc_pause_menu")
                 text_color       "#94a3b8"
                 text_hover_color "#f472b6"
                 background       "#1e293b"
@@ -167,21 +167,21 @@ screen lc_map():
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "📊 Stats":
-                action Function(_show_screen, "lc_stats_screen")
+                action Function(lc_show_screen, "lc_stats_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#60a5fa"
                 background       "#1e293b"
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "📓 Diary":
-                action Function(_show_screen, "lc_diary_screen")
+                action Function(lc_show_screen, "lc_diary_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#fbbf24"
                 background       "#1e293b"
                 hover_background "#334155"
                 padding          (12, 8)
             textbutton "💕 Relations":
-                action Function(_show_screen, "lc_rel_screen")
+                action Function(lc_show_screen, "lc_rel_screen")
                 text_color       "#94a3b8"
                 text_hover_color "#f472b6"
                 background       "#1e293b"
