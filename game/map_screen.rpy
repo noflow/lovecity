@@ -58,7 +58,7 @@ screen lc_map():
             null width 8
             ## Phone button
             textbutton "📱":
-                action Function(lc_show_screen, "phone_ui")
+                action Function(renpy.call_in_new_context, "lc_phone_show")
                 text_color       "#94a3b8"
                 text_hover_color "#34d399"
                 background       "#1e293b"
