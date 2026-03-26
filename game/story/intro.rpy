@@ -97,6 +97,9 @@ label lc_start:
     $ time_day         = 1
     $ time_period      = 0
 
+    ## Initialise phone with all LoveCity contacts
+    call lc_phone_init
+
     ## Jump cleanly into sandbox — zero pending call frames on the stack
     jump sandbox_room_driver
 
