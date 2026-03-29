@@ -273,9 +273,8 @@ screen lc_diary_screen():
 
 
 ## ── PHONE SYSTEM — screen say override ──────────────────────────
-## Required by kleineluka's phone system (phone.rpy).
 ## Hides the dialogue textbox when the phone UI is open.
-## Source: https://kleineluka.itch.io/phone
+## Required by kleineluka's phone system (phone.rpy).
 
 screen say(who, what):
     style_prefix "say"
@@ -283,16 +282,18 @@ screen say(who, what):
     window:
         id "window"
 
-        background (None if (_lc_phone_available and phone_mode) else Image("gui/textbox.png", xalign=0.5, yalign=1.0))
+        ## Hide textbox completely when phone is open
+        background (None if (_phone_ok() and phone_mode) else Image("gui/textbox.png", xalign=0.5, yalign=1.0))
         xalign 0.5
         xfill True
         yalign gui.textbox_yalign
-        ysize gui.textbox_height
+        ysize (0 if (_phone_ok() and phone_mode) else gui.textbox_height)
 
-        if who is not None:
-            text who id "who"
-
-        text what id "what"
+        if not (_phone_ok() and phone_mode):
+            if who is not None:
+                text who id "who"
+            text what id "what"
 
     if not renpy.variant("small"):
-        add SideImage() xalign 0.0 yalign 1.0
+        if not (_phone_ok() and phone_mode):
+            add SideImage() xalign 0.0 yalign 1.0
