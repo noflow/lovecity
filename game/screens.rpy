@@ -283,7 +283,7 @@ screen say(who, what):
     window:
         id "window"
 
-        background (None if phone_mode else Image("gui/textbox.png", xalign=0.5, yalign=1.0))
+        background (None if (_lc_phone_available and phone_mode) else Image("gui/textbox.png", xalign=0.5, yalign=1.0))
         xalign 0.5
         xfill True
         yalign gui.textbox_yalign
