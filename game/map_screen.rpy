@@ -56,8 +56,6 @@ screen lc_map():
             text "⚡ [stat_energy]%"    color "#fbbf24" size 14 yalign 0.5
             text "😊 [stat_happiness]%" color "#f472b6" size 14 yalign 0.5
             null width 8
-                background       "#1e293b"
-                padding          (10, 6)
             textbutton "≡":
                 action Function(lc_show_screen, "lc_pause_menu")
                 text_color       "#94a3b8"

@@ -34,25 +34,20 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
             text loc_name color "#f472b6" bold True size 18 yalign 0.5
             text "[time_str()]" color "#60a5fa" size 14 yalign 0.5
 
-    # Top-right buttons: Phone + Map
+    # Top-right: Outside button
     frame:
         xalign  1.0
         ypos    50
         xpos    -14
         background "#07071088"
         padding    (10, 7)
-        hbox:
-            spacing 6
-                background       "#1e293b"
-                hover_background "#334155"
-                padding          (10, 7)
-            textbutton "🌍 Outside":
-                action Return(("goto_map", None))
-                text_color       "#94a3b8"
-                text_hover_color "#60a5fa"
-                background       "#1e293b"
-                hover_background "#334155"
-                padding          (12, 7)
+        textbutton "🌍 Outside":
+            action Return(("goto_map", None))
+            text_color       "#94a3b8"
+            text_hover_color "#60a5fa"
+            background       "#1e293b"
+            hover_background "#334155"
+            padding          (12, 7)
 
     # NPCs present — middle of screen
     if npcs_here:
@@ -185,25 +180,20 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
             text room_name color "#f472b6" bold True size 18 yalign 0.5
             text "[time_str()]" color "#60a5fa" size 14 yalign 0.5
 
-    # Top-right buttons: Phone + Map
+    # Top-right: Outside button
     frame:
         xalign  1.0
         ypos    50
         xpos    -14
         background "#07071088"
         padding    (10, 7)
-        hbox:
-            spacing 6
-                background       "#1e293b"
-                hover_background "#334155"
-                padding          (10, 7)
-            textbutton "🌍 Outside":
-                action Return(("goto_map", None))
-                text_color       "#94a3b8"
-                text_hover_color "#60a5fa"
-                background       "#1e293b"
-                hover_background "#334155"
-                padding          (12, 7)
+        textbutton "🌍 Outside":
+            action Return(("goto_map", None))
+            text_color       "#94a3b8"
+            text_hover_color "#60a5fa"
+            background       "#1e293b"
+            hover_background "#334155"
+            padding          (12, 7)
 
     # NPCs present in this room
     if npcs_here:
