@@ -280,6 +280,32 @@ screen lc_diary_screen():
 
 
 
+## ── SAY SCREEN STYLES ───────────────────────────────────────────
+## Position the character name and dialogue text correctly
+
+style say_window:
+    xalign 0.5
+    xfill True
+    yalign gui.textbox_yalign
+    ysize gui.textbox_height
+
+style say_who:
+    xpos gui.name_xpos
+    xanchor 0.0
+    ypos gui.name_ypos
+    yanchor 0.0
+    color "#f472b6"
+    bold True
+    size gui.name_text_size
+
+style say_dialogue:
+    xpos gui.text_xpos
+    xanchor 0.0
+    ypos gui.text_ypos
+    yanchor 0.0
+    xsize gui.text_width
+    size gui.text_size
+
 ## ── PHONE SYSTEM — screen say override ──────────────────────────
 ## Based on kleineluka README pattern. Hides textbox when phone open.
 
@@ -296,10 +322,7 @@ screen say(who, what):
         ysize gui.textbox_height
 
         if who is not None:
-            window:
-                id "namebox"
-                style "namebox"
-                text who id "who"
+            text who id "who"
 
         text what id "what"
 

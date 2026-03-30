@@ -39,8 +39,13 @@ define gui.namebox_tile            = False
 define gui.text_xpos               = 268
 define gui.text_ypos               = 6
 define gui.text_xsize              = 744
+define gui.text_width              = 744
 define gui.text_ysize              = 180
 define gui.text_xalign             = 0.0
+
+## Character name position
+define gui.name_xpos               = 295
+define gui.name_ypos               = -22
 
 ## Choice buttons
 define gui.choice_button_width         = 790
