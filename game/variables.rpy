@@ -120,6 +120,18 @@ init python:
     def lc_show_menu(name):   renpy.show_screen(name)
     def lc_main_menu():       renpy.full_restart()
 
+    def lc_show_phone():
+        """Show the phone — calls phone_start() then shows screen."""
+        if hasattr(store, "reset_phone_data"):
+            store.phone_start()
+            renpy.show_screen("phone_ui")
+
+    def lc_hide_phone():
+        """Hide the phone — hides screen then calls phone_end()."""
+        if hasattr(store, "reset_phone_data"):
+            renpy.hide_screen("phone_ui")
+            store.phone_end()
+
     def add_rel(char_id, amount):
         """Adjust a relationship value, clamped 0-200."""
         var = "rel_" + char_id

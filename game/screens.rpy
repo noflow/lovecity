@@ -96,7 +96,7 @@ screen hud():
             # Phone button — opens phone if installed
             if _phone_ok():
                 textbutton "📱":
-                    action Function(renpy.call_in_new_context, "lc_phone_show")
+                    action Function(lc_show_phone)
                     style "lc_button_small"
                     text_color       "#94a3b8"
                     text_hover_color "#34d399"
@@ -281,8 +281,7 @@ screen lc_diary_screen():
 
 
 ## ── PHONE SYSTEM — screen say override ──────────────────────────
-## Exact pattern from kleineluka README. Hides textbox background
-## when phone is open. text id "what" always present (Ren'Py requires it).
+## Based on kleineluka README pattern. Hides textbox when phone open.
 
 screen say(who, what):
     style_prefix "say"
@@ -297,7 +296,10 @@ screen say(who, what):
         ysize gui.textbox_height
 
         if who is not None:
-            text who id "who"
+            window:
+                id "namebox"
+                style "namebox"
+                text who id "who"
 
         text what id "what"
 
