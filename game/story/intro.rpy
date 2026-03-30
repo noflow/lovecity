@@ -100,6 +100,9 @@ label lc_start:
     ## Initialise phone contacts (no-op if phone.rpy not installed yet)
     call lc_phone_init
 
+    ## Show persistent HUD overlay (stats + phone + menu button)
+    show screen hud
+
     ## Jump cleanly into sandbox — zero pending call frames on the stack
     jump sandbox_room_driver
 

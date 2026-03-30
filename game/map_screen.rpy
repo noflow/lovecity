@@ -56,11 +56,6 @@ screen lc_map():
             text "⚡ [stat_energy]%"    color "#fbbf24" size 14 yalign 0.5
             text "😊 [stat_happiness]%" color "#f472b6" size 14 yalign 0.5
             null width 8
-            ## Phone button
-            textbutton "📱":
-                action Function(renpy.call_in_new_context, "lc_phone_show")
-                text_color       "#94a3b8"
-                text_hover_color "#34d399"
                 background       "#1e293b"
                 padding          (10, 6)
             textbutton "≡":

@@ -61,7 +61,7 @@ screen stat_bar(label, value, max_val=100, color="#f472b6", icon=""):
         text "[value]" style "lc_value" xminimum 38 text_align 1.0
 
 ## ── HUD OVERLAY ─────────────────────────────────────────────────
-## Always-visible top strip showing key stats
+## Always-visible top strip showing key stats + phone + menu
 screen hud():
     zorder 100
     frame:
@@ -92,6 +92,14 @@ screen hud():
                 text "😊 [stat_happiness]%" color "#f472b6" size 14
 
             null width 12
+
+            # Phone button — opens phone if installed
+            if _phone_ok():
+                textbutton "📱":
+                    action Function(renpy.call_in_new_context, "lc_phone_show")
+                    style "lc_button_small"
+                    text_color       "#94a3b8"
+                    text_hover_color "#34d399"
 
             # Menu button
             textbutton "≡":
