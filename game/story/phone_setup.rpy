@@ -1,20 +1,20 @@
 ## phone_setup.rpy — LoveCity phone integration
 ## ═══════════════════════════════════════════════════════════════
-## Requires kleineluka's Ren'Py Phone System
-## https://kleineluka.itch.io/phone  (free)
+## Uses kleineluka's Ren'Py Phone System (phone.rpy)
+## https://kleineluka.itch.io/phone
 ##
-## FILE LOCATIONS (confirmed from phone.rpy config):
-##   game/phone.rpy                    ← phone engine
-##   game/gui/phone/                   ← phone UI images (screen, header, etc.)
-##   game/gui/phone/skins/dark_mode/   ← dark mode images
-##   game/gui/phone/skins/flip_phone/  ← flip phone images
-##   game/gui/phone/skins/status_bar/  ← status bar images
-##   game/audio/phone/                 ← send/receive sounds
-##   game/phone/icon.png               ← default contact icon
-##                                        NOTE: no gui/ prefix — game/phone/
+## File locations (confirmed from phone.rpy source):
+##   Images:  game/gui/phone/           (screen, header, base, bubbles etc.)
+##   Audio:   game/audio/phone/         (send.mp3, receive.mp3)
+##   Icons:   game/gui/phone/           (icon.png for default)
 ##
-## ADDING CONTACTS: Edit reset_phone_data() inside phone.rpy
-## See game/lovecity_phone_contacts.txt for the contacts to add
+## Correct API (from phone.rpy source):
+##   create_phone_channel(id, display_name, participants_list, icon_path)
+##   send_phone_message(sender, text, channel_id, do_pause=False)
+##   phone_start() / phone_end()
+##   reset_phone_data()   ← contacts already set up inside phone.rpy itself
+##
+## All LoveCity contacts are configured in phone.rpy's reset_phone_data().
 ## ═══════════════════════════════════════════════════════════════
 
 init python:
@@ -22,25 +22,37 @@ init python:
         """True if phone.rpy is installed and ready."""
         return hasattr(store, "reset_phone_data")
 
-    def lc_text(channel_id, sender_id, message):
-        """Send a text message. No-op if phone not installed."""
-        if _phone_ok() and hasattr(store, "add_phone_message"):
-            add_phone_message(channel_id, sender_id, message)
+    def lc_text(channel_id, sender_name, message):
+        """
+        Send a text message in a channel.
+        channel_id:   e.g. "ch_mom"
+        sender_name:  display name matching channel participant, e.g. "Mom"
+                      use phone_config["phone_player_name"] for the player ("Me")
+        message:      string
+        """
+        if _phone_ok():
+            send_phone_message(sender_name, message, channel_id, do_pause=False)
+
+    def lc_text_player(channel_id, message):
+        """Send a message as the player (MC)."""
+        if _phone_ok():
+            send_phone_message(phone_config["phone_player_name"], message, channel_id, do_pause=False)
 
     def lc_notify(channel_id):
-        """Show notification badge. No-op if phone not installed."""
-        if _phone_ok() and hasattr(store, "set_phone_notification"):
-            set_phone_notification(channel_id, True)
+        """Show notification badge. (send_phone_message sets this automatically)"""
+        if _phone_ok() and channel_id in channel_notifs:
+            channel_notifs[channel_id] = True
+            renpy.restart_interaction()
 
     def lc_clear_notify(channel_id):
-        """Clear notification badge. No-op if phone not installed."""
-        if _phone_ok() and hasattr(store, "set_phone_notification"):
-            set_phone_notification(channel_id, False)
+        """Clear notification badge."""
+        if _phone_ok() and channel_id in channel_notifs:
+            channel_notifs[channel_id] = False
+            renpy.restart_interaction()
 
 
 ## ── PHONE INIT ───────────────────────────────────────────────────
-## Calls reset_phone_data() inside phone.rpy which sets up contacts.
-## Contacts/channels must be configured in phone.rpy itself.
+## Calls reset_phone_data() — contacts are set up inside phone.rpy.
 
 label lc_phone_init:
     if _phone_ok():
@@ -63,17 +75,37 @@ label lc_phone_hide:
     return
 
 
-## ── DAY 1 EVENTS ─────────────────────────────────────────────────
+## ── DAY 1 PHONE EVENTS ──────────────────────────────────────────
+## Call these after the relevant story moments.
+
 label phone_mom_day1:
     if _phone_ok():
-        $ lc_text("ch_mom", "mom", "Don't forget to eat something at school.")
-        $ lc_text("ch_mom", "mom", "Text me when you get there. ❤")
-        $ lc_notify("ch_mom")
+        $ lc_text("ch_mom", "Mom", "Don't forget to eat something at school.")
+        $ lc_text("ch_mom", "Mom", "Text me when you get there. ❤")
     return
 
 label phone_sister_day1:
     if _phone_ok():
-        $ lc_text("ch_sister", "sister", "hey")
-        $ lc_text("ch_sister", "sister", "you survive orientation?")
-        $ lc_notify("ch_sister")
+        $ lc_text("ch_sister", "Cass", "hey")
+        $ lc_text("ch_sister", "Cass", "you survive orientation?")
     return
+
+
+## ── USAGE EXAMPLES ───────────────────────────────────────────────
+## Send a message from an NPC:
+##   $ lc_text("ch_mom", "Mom", "Are you home yet?")
+##
+## Send as player:
+##   $ lc_text_player("ch_mom", "Almost!")
+##
+## Send with in-game pause (waits for click):
+##   $ send_phone_message("Mom", "Dinner's ready.", "ch_mom", do_pause=True)
+##
+## Photo message:
+##   $ send_phone_message("Luna", "path/to/photo.png", "ch_luna", message_kind=2)
+##
+## Choice reply:
+##   $ present_phone_choices([
+##       ("Sure!", "Sure!", None),
+##       ("Maybe later", "Maybe later...", None),
+##   ], "ch_alex")

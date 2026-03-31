@@ -124,7 +124,6 @@ init python:
         """Show the phone — ensures data initialised, calls phone_start() then shows screen."""
         if not hasattr(store, "reset_phone_data"):
             return  # phone.rpy not installed
-        # Ensure reset has been called at least once
         if not getattr(store, "_lc_phone_inited", False):
             store.reset_phone_data()
             store._lc_phone_inited = True
@@ -132,7 +131,7 @@ init python:
         renpy.show_screen("phone_ui")
 
     def lc_hide_phone():
-        """Hide the phone — hides screen then calls phone_end()."""
+        """Hide the phone."""
         if hasattr(store, "reset_phone_data"):
             renpy.hide_screen("phone_ui")
             store.phone_end()
