@@ -6,151 +6,209 @@ screen lc_title_screen():
     tag menu
     zorder 0
 
-    ## Background — use bedroom or solid fallback
+    ## Background
     if renpy.loadable("backgrounds/bedroom.webp"):
         add "backgrounds/bedroom.webp" fit "cover"
     else:
         add Solid("#07071a")
 
-    ## Dark overlay
-    add Solid("#00000088")
+    ## Gradient overlay — dark on left where menu sits, lighter on right
+    add "#000000CC"
 
-    ## Subtle animated shimmer at top
+    ## Left panel — menu area
     frame:
-        background "#f472b608"
-        xfill True
-        ysize 3
+        background "#07071aCC"
+        xpos 0
         ypos 0
+        xsize 420
+        ysize 720
+        padding (0, 0)
 
-    ## Title block — centred
-    vbox:
-        xalign 0.5
-        yalign 0.38
-        spacing 6
-
-        ## Logo / Title
-        text "💖 LoveCity":
+        vbox:
             xalign 0.5
-            color  "#f472b6"
-            size   72
-            bold   True
+            yalign 0.5
+            spacing 0
 
-        text "a story about the city and the people in it":
-            xalign    0.5
-            text_align 0.5
-            color  "#475569"
-            size   18
-            italic True
-
-    ## Menu buttons
-    vbox:
-        xalign 0.5
-        yalign 0.65
-        spacing 14
-
-        ## New Game
-        textbutton "✨  New Game":
-            action Return("new")
-            xalign 0.5
-            xminimum 280
-            background "#f472b618"
-            hover_background "#f472b633"
-            padding (24, 14)
-            text_color       "#f472b6"
-            text_hover_color "#ffffff"
-            text_size        20
-            text_bold        True
-
-        ## Continue (only if save exists)
-        if renpy.newest_slot() is not None:
-            textbutton "▶  Continue":
-                action Return("continue")
+            ## ── TITLE ──────────────────────────────────────────
+            null height 20
+            text "💖":
                 xalign 0.5
-                xminimum 280
-                background "#60a5fa18"
-                hover_background "#60a5fa33"
-                padding (24, 14)
-                text_color       "#60a5fa"
-                text_hover_color "#ffffff"
-                text_size        20
+                size   52
 
-        ## Load Game
-        textbutton "📂  Load Game":
-            action Return("load")
-            xalign 0.5
-            xminimum 280
-            background "#1e293b"
-            hover_background "#334155"
-            padding (24, 14)
-            text_color       "#94a3b8"
-            text_hover_color "#e2e8f0"
-            text_size        18
+            null height 8
 
-        ## Settings
-        textbutton "⚙️  Settings":
-            action Return("settings")
-            xalign 0.5
-            xminimum 280
-            background "#1e293b"
-            hover_background "#334155"
-            padding (24, 14)
-            text_color       "#94a3b8"
-            text_hover_color "#e2e8f0"
-            text_size        18
+            text "LoveCity":
+                xalign 0.5
+                color  "#f472b6"
+                size   52
+                bold   True
 
-        ## Quit
-        textbutton "🚪  Quit":
-            action Return("quit")
-            xalign 0.5
-            xminimum 280
-            background "#0f172a"
-            hover_background "#1e293b"
-            padding (24, 14)
-            text_color       "#475569"
-            text_hover_color "#ef4444"
-            text_size        18
+            null height 6
 
-    ## Version + credit
-    text "v0.1.0":
+            text "a story about the city":
+                xalign    0.5
+                text_align 0.5
+                color  "#64748b"
+                size   15
+                italic True
+
+            text "and the people in it":
+                xalign    0.5
+                text_align 0.5
+                color  "#64748b"
+                size   15
+                italic True
+
+            ## ── DIVIDER ────────────────────────────────────────
+            null height 40
+
+            frame:
+                background "#f472b622"
+                xsize 180
+                ysize 1
+                xalign 0.5
+
+            null height 40
+
+            ## ── BUTTONS ────────────────────────────────────────
+            ## New Game
+            button:
+                action Return("new")
+                xalign 0.5
+                xsize  300
+                ysize  56
+                background "#f472b620"
+                hover_background "#f472b640"
+                hbox:
+                    xalign 0.5
+                    yalign 0.5
+                    spacing 14
+                    text "✨":
+                        yalign 0.5
+                        size   20
+                    text "New Game":
+                        yalign 0.5
+                        color  "#f472b6"
+                        hover_color "#ffffff"
+                        size   20
+                        bold   True
+
+            null height 10
+
+            ## Continue (only if save exists)
+            if renpy.newest_slot() is not None:
+                button:
+                    action Return("continue")
+                    xalign 0.5
+                    xsize  300
+                    ysize  52
+                    background "#60a5fa15"
+                    hover_background "#60a5fa30"
+                    hbox:
+                        xalign 0.5
+                        yalign 0.5
+                        spacing 14
+                        text "▶":
+                            yalign 0.5
+                            size   18
+                            color "#60a5fa"
+                        text "Continue":
+                            yalign 0.5
+                            color  "#60a5fa"
+                            hover_color "#ffffff"
+                            size   18
+                null height 10
+
+            ## Load Game
+            button:
+                action Return("load")
+                xalign 0.5
+                xsize  300
+                ysize  48
+                background "#1e293b"
+                hover_background "#334155"
+                hbox:
+                    xalign 0.5
+                    yalign 0.5
+                    spacing 14
+                    text "📂":
+                        yalign 0.5
+                        size   16
+                    text "Load Game":
+                        yalign 0.5
+                        color  "#94a3b8"
+                        hover_color "#e2e8f0"
+                        size   16
+
+            null height 6
+
+            ## Settings
+            button:
+                action Return("settings")
+                xalign 0.5
+                xsize  300
+                ysize  48
+                background "#1e293b"
+                hover_background "#334155"
+                hbox:
+                    xalign 0.5
+                    yalign 0.5
+                    spacing 14
+                    text "⚙️":
+                        yalign 0.5
+                        size   16
+                    text "Settings":
+                        yalign 0.5
+                        color  "#94a3b8"
+                        hover_color "#e2e8f0"
+                        size   16
+
+            null height 6
+
+            ## Quit
+            button:
+                action Return("quit")
+                xalign 0.5
+                xsize  300
+                ysize  48
+                background "#0f172a"
+                hover_background "#1e293b"
+                hbox:
+                    xalign 0.5
+                    yalign 0.5
+                    spacing 14
+                    text "🚪":
+                        yalign 0.5
+                        size   16
+                    text "Quit":
+                        yalign 0.5
+                        color  "#475569"
+                        hover_color "#ef4444"
+                        size   16
+
+            null height 48
+
+    ## Thin pink accent line on left edge
+    frame:
+        background "#f472b6"
+        xpos 0
+        ypos 0
+        xsize 3
+        ysize 720
+
+    ## Version bottom-left
+    text "v0.1.0  ·  Ren'Py 8":
+        xpos 14
+        ypos -10
+        yalign 1.0
+        color  "#1e293b"
+        size   12
+
+    ## Credit to kleineluka bottom-right
+    text "Phone system by KleineLuka":
         xalign 1.0
         yalign 1.0
         xpos   -14
         ypos   -10
         color  "#1e293b"
-        size   13
-
-
-## ── ABOUT SCREEN ─────────────────────────────────────────────────
-screen lc_about_screen():
-    tag menu
-    add Solid("#07071a")
-    add Solid("#00000088")
-
-    frame:
-        background "#07071088"
-        padding    (40, 36)
-        xalign 0.5
-        yalign 0.5
-        xsize 640
-        vbox:
-            spacing 16
-            text "About LoveCity":
-                color "#f472b6"
-                bold True
-                size 28
-                xalign 0.5
-            null height 8
-            text "A sandbox visual novel set in a modern city.\nExplore, connect, grow.":
-                color "#94a3b8"
-                size  18
-                text_align 0.5
-                xalign 0.5
-            null height 16
-            textbutton "← Back":
-                action Return()
-                xalign 0.5
-                background "#1e293b"
-                hover_background "#334155"
-                padding (16, 10)
-                text_color "#94a3b8"
-                text_hover_color "#e2e8f0"
+        size   12

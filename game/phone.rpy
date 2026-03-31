@@ -69,9 +69,9 @@ init -1 python:
         "group_joined": "{participant} joined the group.",
         "group_left": "{participant} left the group.",
         # UI Configurations
-        "message_font_size": 24,
-        "choice_font_size": 24,
-        "timestamp_font_size": 20,
+        "message_font_size": 22,
+        "choice_font_size": 22,
+        "timestamp_font_size": 18,
         "auto_scroll": True,
         "show_sender_in_preview": True,
         "default_icon": "gui/phone/icon.png",
@@ -84,7 +84,7 @@ init -1 python:
         "emojis": {
             "size": 32,
         },
-        "phone_theme": "light",  # default theme
+        "phone_theme": "dark",  # LoveCity uses dark mode
         "light": {
             # colours for light mode
             "message_player_text_colour": "#FFFFFF",
@@ -108,18 +108,18 @@ init -1 python:
             "player_bubble_hover_image": "gui/phone/player_bubble_hover.png",
             "character_bubble_image": "gui/phone/character_bubble.png",
         },
-        "dark": { 
-            # colours for dark mode
+        "dark": {
+            # LoveCity dark mode — pink/purple player, slate character
             "message_player_text_colour": "#FFFFFF",
-            "message_character_text_colour": "#FFFFFF",
-            "timestamp_text_colour": "#AAAAAA",
-            "header_text_colour": "#FFFFFF",
-            "channel_name_text_colour": "#FFFFFF",
-            "channel_preview_text_colour": "#BBBBBB",
-            "sender_name_text_colour": "#AAAAAA",
-            "channel_divider_colour": "#444444",
-            "channel_button_hover_background": "#333333",
-            "empty_channel_text_colour": "#FFFFFF",
+            "message_character_text_colour": "#E2E8F0",
+            "timestamp_text_colour": "#64748b",
+            "header_text_colour": "#F472B6",
+            "channel_name_text_colour": "#E2E8F0",
+            "channel_preview_text_colour": "#94A3B8",
+            "sender_name_text_colour": "#F472B6",
+            "channel_divider_colour": "#1E293B",
+            "channel_button_hover_background": "#1E293B",
+            "empty_channel_text_colour": "#94A3B8",
             # dark mode images
             "screen_background_image": "gui/phone/skins/dark_mode/screen.png",
             "header_background_image": "gui/phone/skins/dark_mode/header.png",
