@@ -62,7 +62,7 @@ screen lc_title_screen():
             text_bold        True
 
         ## Continue (only if save exists)
-        if renpy.can_load_fast():
+        if renpy.newest_slot() is not None:
             textbutton "▶  Continue":
                 action Return("continue")
                 xalign 0.5
