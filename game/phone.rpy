@@ -621,7 +621,7 @@ screen phone_ui():
         textbutton "✕":
             xalign 0.87
             yalign 0.042
-            action [Function(phone_end), Hide("phone_ui")]
+            action [Function(setattr, store, "phone_mode", False), Hide("phone_ui")]
             text_color "#f472b6"
             text_size 22
             background None
