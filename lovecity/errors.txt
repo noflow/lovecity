@@ -1,0 +1,18 @@
+﻿I'm sorry, but errors were detected in your script. Please correct the
+errors listed below, and try again.
+
+
+File "game/location_hub.rpy", line 46: Line is indented, but the preceding spacing statement does not expect a block. Please check this line's indentation. You may have forgotten a colon (:).
+    background       "#1e293b"
+    ^
+
+File "game/location_hub.rpy", line 197: Line is indented, but the preceding spacing statement does not expect a block. Please check this line's indentation. You may have forgotten a colon (:).
+    background       "#1e293b"
+    ^
+
+File "game/map_screen.rpy", line 59: Line is indented, but the preceding null statement does not expect a block. Please check this line's indentation. You may have forgotten a colon (:).
+    background       "#1e293b"
+    ^
+
+Ren'Py Version: Ren'Py 8.5.2.26010301
+Mon Mar 30 08:35:13 2026
