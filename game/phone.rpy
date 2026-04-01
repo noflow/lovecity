@@ -628,6 +628,18 @@ screen phone_ui():
                     focus_mask True
                     xysize (75, 75)
                     action SetVariable("current_phone_view", "channel_list")
+        # close / dismiss the phone
+        textbutton "✕":
+            xalign 0.915
+            yalign 0.058
+            padding (10, 6)
+            background "#00000000"
+            hover_background "#00000033"
+            text_style "default"
+            text_size 28
+            text_color get_phone_theme_value("header_text_colour")
+            text_hover_color "#FFFFFF"
+            action Function(lc_hide_phone)
         # viewport to hold messages for scrolling
         vbox:
             id "phone_viewport"

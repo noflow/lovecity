@@ -124,7 +124,7 @@ init python:
         """Show the phone — ensures data initialised, calls phone_start() then shows screen."""
         if not hasattr(store, "reset_phone_data"):
             return  # phone.rpy not installed
-        if not getattr(store, "_lc_phone_inited", False):
+        if not getattr(store, "_lc_phone_inited", False) or not store.phone_channel_data:
             store.reset_phone_data()
             store._lc_phone_inited = True
         store.phone_start()
