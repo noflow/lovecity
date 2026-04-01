@@ -50,6 +50,13 @@ init python:
             channel_notifs[channel_id] = False
             renpy.restart_interaction()
 
+    def lc_show_phone():
+        """Show the phone UI overlay from the HUD button."""
+        if _phone_ok():
+            phone_start()
+            renpy.show_screen("phone_ui")
+            renpy.restart_interaction()
+
 
 ## ── PHONE INIT ───────────────────────────────────────────────────
 ## Calls reset_phone_data() — contacts are set up inside phone.rpy.

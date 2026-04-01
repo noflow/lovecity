@@ -592,7 +592,7 @@ init -1 python:
 ## Screen: Phone Messages
 ## -----------------------------------------------------
 # phone relevant! initial phone position and size 
-default phone_zoom = 0.9
+default phone_zoom = 0.65
 default phone_x = 0.5
 default phone_y = 0.5
 transform phone_position(p_zoom, p_x, p_y):
@@ -617,6 +617,15 @@ screen phone_ui():
         add get_phone_theme_value("screen_background_image")
         add get_phone_theme_value("header_background_image")
         add get_phone_theme_value("base_background_image")
+        # close button — always visible, top-right corner of phone
+        textbutton "✕":
+            xalign 0.87
+            yalign 0.042
+            action [Function(phone_end), Hide("phone_ui")]
+            text_color "#f472b6"
+            text_size 22
+            background None
+            hover_background None
         # if in a chat, add a back button
         if current_phone_view != "channel_list" and disable_phone_menu_switch == False:
                 $ back_icon_path = get_phone_theme_value("back_button_notif_image") if has_any_notification_not_active() else get_phone_theme_value("back_button_idle_image")
