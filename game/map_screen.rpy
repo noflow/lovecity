@@ -38,25 +38,6 @@ screen lc_map():
 
     add Solid("#00000055")
 
-    ## ── HUD bar (inlined — avoids use/subscreen scoping issues) ─────
-    frame:
-        background "#07071099"
-        padding    (14, 8)
-        xfill      True
-        ypos       0
-        hbox:
-            spacing 18
-            xfill True
-            text "💖 LoveCity" color "#f472b6" bold True size 18 yalign 0.5
-            null width 8
-            text "[time_str()]"         color "#60a5fa" size 14 yalign 0.5
-            text "Day [time_day]"       color "#475569" size 13 yalign 0.5
-            null xfill True
-            text "💰 $[stat_money]"     color "#34d399" size 14 yalign 0.5
-            text "⚡ [stat_energy]%"    color "#fbbf24" size 14 yalign 0.5
-            text "😊 [stat_happiness]%" color "#f472b6" size 14 yalign 0.5
-            null width 8
-
     # Location buttons
     for loc_id, label, icon, lx, ly in MAP_LOCATIONS:
         python:

@@ -133,15 +133,6 @@ screen lc_location_hub(loc_id, npcs_here, loc_actions):
                     background       "#1e293b"
                     hover_background "#334155"
                     padding          (10, 8)
-            # Stat strip
-            hbox:
-                spacing 20
-                xfill True
-                text "💰 $[stat_money]"      color "#34d399" size 13
-                text "⚡ [stat_energy]%"     color "#fbbf24" size 13
-                text "😊 [stat_happiness]%"  color "#f472b6" size 13
-                null xfill True
-                text "Day [time_day]  [time_str()]" color "#475569" size 13
 
 
 ## ── HOME ROOM SCREEN ─────────────────────────────────────────────
@@ -335,12 +326,4 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                             xalign 0.5
                             color  "#60a5fa"
 
-            # Stat strip
-            hbox:
-                spacing 20
-                xfill True
-                text "💰 $[stat_money]"      color "#34d399" size 12
-                text "⚡ [stat_energy]%"     color "#fbbf24" size 12
-                text "😊 [stat_happiness]%"  color "#f472b6" size 12
-                null xfill True
-                text "Day [time_day]  [time_str()]" color "#475569" size 12
+            # Stat strip removed — shown by global hud() screen
