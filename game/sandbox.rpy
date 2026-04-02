@@ -34,9 +34,14 @@ init python:
             "mall":"bg_mall","park":"bg_park","clinic":"bg_clinic",
             "gym":"bg_gym","office":"bg_office","bar":"bg_bar",
             "library":"bg_library","salon":"bg_salon","street":"bg_street",
+            "hospital":"bg_clinic",
+            "realestate":"bg_realestate","apt_complex":"bg_apt_complex",
+            "townhomes":"bg_townhomes","house_elm":"bg_house_elm",
+            "house_oak":"bg_house_oak","penthouse_tower":"bg_penthouse",
             "bedroom":"bg_bedroom","kitchen":"bg_kitchen",
             "livingroom":"bg_livingroom","bathroom":"bg_bathroom",
-            "garden":"bg_garden",
+            "garden":"bg_garden","momsroom":"bg_momsroom",
+            "sisroom":"bg_sisroom",
         }
         key = bg_map.get(room_id or loc_id, bg_map.get(loc_id, "bg_default"))
         color = bg_colors.get(key, "#0a0a1e")
@@ -128,7 +133,10 @@ label sandbox_room_driver:
         call sandbox_room_enter_event
     elif _sandbox_next == "talk":
         $ lc_set_bg("home", current_room)
-        call expression "talk_" + _sandbox_val
+        if renpy.has_label("talk_" + _sandbox_val):
+            call expression "talk_" + _sandbox_val
+        else:
+            call talk_default
     elif _sandbox_next == "action":
         $ lc_set_bg("home", current_room)
         call expression "action_home_" + _sandbox_val
@@ -147,7 +155,7 @@ label sandbox_room_screen:
     python:
         _room_actions = get_room_actions(current_room)
         _npcs_here    = []
-        for _npc_id in ["mom", "sister"]:
+        for _npc_id in NPC_SCHEDULE:
             _nloc, _nroom, _ = get_npc_location(_npc_id)
             if _nloc == "home" and (_nroom == current_room or _nroom is None):
                 _npcs_here.append(_npc_id)
@@ -188,7 +196,10 @@ label sandbox_hub_driver:
         jump sandbox_map_driver
     elif _sandbox_next == "talk":
         $ lc_set_bg(current_location)
-        call expression "talk_" + _sandbox_val
+        if renpy.has_label("talk_" + _sandbox_val):
+            call expression "talk_" + _sandbox_val
+        else:
+            call talk_default
     elif _sandbox_next == "action":
         $ lc_set_bg(current_location)
         call expression "action_" + current_location + "_" + _sandbox_val

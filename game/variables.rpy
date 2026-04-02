@@ -32,6 +32,17 @@ default stat_lust        = 0
 default stat_arousal     = 0
 default stat_corruption  = 0
 
+# ── APPEARANCE / PRESENTATION ───────────────────────────────────
+default appearance_makeup     = 0     # 0-100 scale
+default appearance_clothing   = 0     # 0-100 scale
+default stat_public_presentation = 0  # How "out" the player is publicly
+default stat_social_acceptance   = 0  # Community acceptance level
+
+# ── TRANSFORMATION STAGE ────────────────────────────────────────
+default transformation_stage  = 0     # 0=Pre, 1=Early, 2=Mid, 3=Advanced, 4=Complete
+default hrt_started           = False
+default hrt_day               = 0     # Days since starting HRT
+
 # ── TIME SYSTEM ─────────────────────────────────────────────────
 # Period: 0=Morning 1=Afternoon 2=Evening 3=Night
 default time_day         = 1
@@ -101,6 +112,20 @@ default flag_met_luna            = False
 default flag_met_dr_rivera       = False
 default flag_met_cora            = False
 default flag_met_theo            = False
+default flag_met_sera            = False
+default flag_met_nadia           = False
+default flag_met_simone          = False
+default flag_met_zane            = False
+default flag_met_ronnie          = False
+default flag_met_river           = False
+default flag_met_sasha           = False
+default flag_met_petra           = False
+default flag_met_dom             = False
+default flag_met_reo             = False
+default flag_met_jamie           = False
+default flag_met_august          = False
+default flag_met_prof_harlow     = False
+default flag_met_dr_obi          = False
 default flag_therapy_started     = False
 default flag_first_day_done      = False
 

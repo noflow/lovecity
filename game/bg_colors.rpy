@@ -17,12 +17,21 @@ init python:
         "bg_library":    "#2e1e0a",
         "bg_salon":      "#2e0a1e",
         "bg_street":     "#1a1a20",
+        # Extra locations
+        "bg_realestate":   "#1e2535",
+        "bg_apt_complex":  "#1a1a2e",
+        "bg_townhomes":    "#1e2020",
+        "bg_house_elm":    "#1a1e15",
+        "bg_house_oak":    "#1e1a10",
+        "bg_penthouse":    "#0a0a20",
         # Home rooms
         "bg_bedroom":    "#1a1230",
         "bg_kitchen":    "#251808",
         "bg_livingroom": "#1a1520",
         "bg_bathroom":   "#0a2030",
         "bg_garden":     "#1e350a",
+        "bg_momsroom":   "#2e1a28",
+        "bg_sisroom":    "#2e1040",
         # Default
         "bg_default":    "#0a0a1e",
     }
@@ -48,3 +57,11 @@ image bg_bar        = "backgrounds/bar.webp"        if renpy.loadable("backgroun
 image bg_library    = "backgrounds/library.webp"    if renpy.loadable("backgrounds/library.webp")    else "backgrounds/library.jpg"    if renpy.loadable("backgrounds/library.jpg")    else Solid("#2e1e0a")
 image bg_salon      = "backgrounds/salon.webp"      if renpy.loadable("backgrounds/salon.webp")      else "backgrounds/salon.jpg"      if renpy.loadable("backgrounds/salon.jpg")      else Solid("#2e0a1e")
 image bg_street     = "backgrounds/street.webp"     if renpy.loadable("backgrounds/street.webp")     else "backgrounds/street.jpg"     if renpy.loadable("backgrounds/street.jpg")     else Solid("#1a1a20")
+image bg_momsroom   = "backgrounds/momsroom.webp"   if renpy.loadable("backgrounds/momsroom.webp")   else "backgrounds/momsroom.jpg"   if renpy.loadable("backgrounds/momsroom.jpg")   else Solid("#2e1a28")
+image bg_sisroom    = "backgrounds/sisroom.webp"    if renpy.loadable("backgrounds/sisroom.webp")    else "backgrounds/sisroom.jpg"    if renpy.loadable("backgrounds/sisroom.jpg")    else Solid("#2e1040")
+image bg_realestate = "backgrounds/realestate.webp" if renpy.loadable("backgrounds/realestate.webp") else "backgrounds/realestate.jpg" if renpy.loadable("backgrounds/realestate.jpg") else Solid("#1e2535")
+image bg_apt_complex= "backgrounds/apt_complex.webp"if renpy.loadable("backgrounds/apt_complex.webp")else "backgrounds/apt_complex.jpg"if renpy.loadable("backgrounds/apt_complex.jpg")else Solid("#1a1a2e")
+image bg_townhomes  = "backgrounds/townhomes.webp"  if renpy.loadable("backgrounds/townhomes.webp")  else "backgrounds/townhomes.jpg"  if renpy.loadable("backgrounds/townhomes.jpg")  else Solid("#1e2020")
+image bg_house_elm  = "backgrounds/house_elm.webp"  if renpy.loadable("backgrounds/house_elm.webp")  else "backgrounds/house_elm.jpg"  if renpy.loadable("backgrounds/house_elm.jpg")  else Solid("#1a1e15")
+image bg_house_oak  = "backgrounds/house_oak.webp"  if renpy.loadable("backgrounds/house_oak.webp")  else "backgrounds/house_oak.jpg"  if renpy.loadable("backgrounds/house_oak.jpg")  else Solid("#1e1a10")
+image bg_penthouse  = "backgrounds/penthouse.webp"  if renpy.loadable("backgrounds/penthouse.webp")  else "backgrounds/penthouse.jpg"  if renpy.loadable("backgrounds/penthouse.jpg")  else Solid("#0a0a20")
