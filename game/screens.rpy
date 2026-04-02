@@ -285,7 +285,7 @@ screen lc_diary_screen():
 
 style say_window:
     xalign 0.5
-    xsize 780
+    xsize 468
     yalign gui.textbox_yalign
     ysize gui.textbox_height
 
@@ -318,7 +318,7 @@ screen say(who, what):
 
         background (None if (_phone_ok() and phone_mode) else "gui/locationhub/textbox_blue.png")
         xalign 0.5
-        xsize 780
+        xsize 468
         yalign gui.textbox_yalign
         ysize gui.textbox_height
         xpadding 0

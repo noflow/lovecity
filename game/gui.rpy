@@ -20,32 +20,32 @@ define gui.default_font            = "gui/fonts/Aller_Rg.ttf"
 define gui.interface_font          = "gui/fonts/Aller_Rg.ttf"
 define gui.glyph_font              = "DejaVuSans.ttf"
 
-define gui.text_size               = 22
-define gui.name_text_size          = 24
+define gui.text_size               = 16
+define gui.name_text_size          = 17
 define gui.interface_text_size     = 22
 define gui.label_text_size         = 24
 define gui.notify_text_size        = 18
 
 ## Dialogue box
-define gui.textbox_height          = 185
+define gui.textbox_height          = 111
 define gui.textbox_yalign          = 1.0
 
 define gui.namebox_width           = None
 define gui.namebox_height          = None
-define gui.namebox_borders         = Borders(5, 5, 5, 5)
+define gui.namebox_borders         = Borders(3, 3, 3, 3)
 define gui.namebox_tile            = False
 
 ## Dialogue text position (inside blue body area)
-define gui.text_xpos               = 30
-define gui.text_ypos               = 40
-define gui.text_xsize              = 700
-define gui.text_width              = 700
-define gui.text_ysize              = 130
+define gui.text_xpos               = 18
+define gui.text_ypos               = 24
+define gui.text_xsize              = 420
+define gui.text_width              = 420
+define gui.text_ysize              = 78
 define gui.text_xalign             = 0.0
 
 ## Character name position (inside white top bar)
-define gui.name_xpos               = 30
-define gui.name_ypos               = 5
+define gui.name_xpos               = 18
+define gui.name_ypos               = 3
 
 ## Choice buttons
 define gui.choice_button_width         = 790
