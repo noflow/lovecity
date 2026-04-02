@@ -44,8 +44,22 @@ init python:
         "sisroom":   {"name": "Emma's Room",    "icon": "🚪", "bg": "bg_sisroom"},
     }
 
+    # ── NPC HOMES ────────────────────────────────────────────────
+    # Maps npc_id -> location_id where they actually live.
+    # "home" = the player's house (only family).
+    # When an NPC's schedule says "home" but they have no entry here,
+    # they're at their own (non-visitable) place — won't appear anywhere.
+    # Add entries here as story unlocks NPC homes.
+    NPC_HOME = {
+        "mom":        "home",
+        "sister":     "home",
+        # Example: once you visit Alex's apartment, add:
+        # "alex":     "apt_complex",
+    }
+
     # ── NPC SCHEDULE ─────────────────────────────────────────────
     # Format: npc_id -> list of (weekday_mask, period, location, room, activity)
+    # When location is "home", get_npc_location() resolves it via NPC_HOME.
     # weekday_mask: "weekday" | "weekend" | "all" | specific day name
     # period: 0-3
 
@@ -374,7 +388,9 @@ init python:
     }
 
     def get_npc_location(npc_id, period=None, weekday=None):
-        """Return (location, room, activity) for an NPC at the current time."""
+        """Return (location, room, activity) for an NPC at the current time.
+        When schedule says 'home', resolves via NPC_HOME. If the NPC has no
+        entry in NPC_HOME, returns '_offscreen' so they don't appear anywhere."""
         if period is None:
             period = store.time_period
         if weekday is None:
@@ -393,7 +409,16 @@ init python:
                 best = (loc, room, activity)
             elif day_mask == "weekend" and is_weekend:
                 best = (loc, room, activity)
-        return best or ("home", None, "Around")
+
+        if best is None:
+            best = ("home", None, "Around")
+
+        loc, room, activity = best
+        # Resolve "home" → actual location via NPC_HOME
+        if loc == "home":
+            real_home = NPC_HOME.get(npc_id, "_offscreen")
+            loc = real_home
+        return (loc, room, activity)
 
     def npcs_at_location(location, period=None, weekday=None):
         """Return list of NPC ids present at a location right now."""
