@@ -155,7 +155,8 @@ label sandbox_room_screen:
     python:
         _room_actions = get_room_actions(current_room)
         _npcs_here    = []
-        for _npc_id in NPC_SCHEDULE:
+        # Only family members live in the player's house
+        for _npc_id in ["mom", "sister"]:
             _nloc, _nroom, _ = get_npc_location(_npc_id)
             if _nloc == "home" and (_nroom == current_room or _nroom is None):
                 _npcs_here.append(_npc_id)
