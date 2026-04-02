@@ -96,14 +96,14 @@ screen hud():
             # Phone button — opens phone if installed
             if _phone_ok():
                 textbutton "📱":
-                    action Function(lc_show_phone)
+                    action [Function(lc_show_phone), NullAction()]
                     style "lc_button_small"
                     text_color       "#94a3b8"
                     text_hover_color "#34d399"
 
             # Menu button
             textbutton "≡":
-                action Function(lc_show_screen, "lc_menu")
+                action [Function(lc_show_screen, "lc_menu"), NullAction()]
                 style "lc_button_small"
 
 ## ── MAIN MENU / PAUSE ───────────────────────────────────────────
@@ -118,22 +118,22 @@ screen lc_menu():
         text "LoveCity" style "lc_header" xalign 0.5
         null height 8
         textbutton "📖 Continue":
-            action Return()
+            action [Function(lc_hide_screen, "lc_menu"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "💾 Save Game":
-            action Function(lc_show_screen, "save")
+            action [Function(lc_show_screen, "save"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "📂 Load Game":
-            action Function(lc_show_screen, "load")
+            action [Function(lc_show_screen, "load"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "📊 Stats":
-            action Function(lc_show_screen, "lc_stats_screen")
+            action [Function(lc_show_screen, "lc_stats_screen"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "📓 Diary":
-            action Function(lc_show_screen, "lc_diary_screen")
+            action [Function(lc_show_screen, "lc_diary_screen"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "⚙️ Preferences":
-            action Function(lc_show_screen, "preferences")
+            action [Function(lc_show_screen, "preferences"), NullAction()]
             style "lc_button" xalign 0.5
         null height 8
         textbutton "🚪 Main Menu":
