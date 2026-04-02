@@ -621,15 +621,14 @@ init -1 python:
 
 screen phone_ui():
     zorder 100
-    modal True
     default was_channel_unread = False
 
-    # Click-away backdrop to close phone
+    # Click-away backdrop to close phone (also blocks clicks to screens below)
     button:
         background "#00000066"
         xfill True
         yfill True
-        action Function(lc_hide_phone)
+        action [Function(lc_hide_phone), NullAction()]
 
     frame:
         at phone_position(phone_zoom, phone_x, phone_y)
@@ -700,7 +699,7 @@ screen phone_ui():
                 text_size 26
                 text_color "#94a3b8"
                 text_hover_color "#f43f5e"
-                action Function(lc_hide_phone)
+                action [Function(lc_hide_phone), NullAction()]
 
         # ── MAIN CONTENT ──────────────────────────────────────
         vbox:
