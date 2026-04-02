@@ -50,7 +50,7 @@
 ## -----------------------------------------------------
 ## Phone Program Python
 ## -----------------------------------------------------
-define phone_mode = False
+default phone_mode = False
 init -1 python:
     import re
 
@@ -591,12 +591,12 @@ init -1 python:
 ## -----------------------------------------------------
 ## Screen: Phone Messages
 ## -----------------------------------------------------
-# phone relevant! initial phone position and size 
-default phone_zoom = 0.9
-default phone_x = 0.5
-default phone_y = 0.5
+# phone relevant! initial phone position and size
+define phone_zoom = 0.45
+define phone_x = 0.5
+define phone_y = 0.5
 transform phone_position(p_zoom, p_x, p_y):
-    anchor(0.5, 0.5) 
+    anchor(0.5, 0.5)
     pos(p_x, p_y)
     zoom p_zoom
 
@@ -604,301 +604,366 @@ transform phone_position(p_zoom, p_x, p_y):
 image emoji_sob = "phone/emoji/sob.png"
 image emoji_dizzy = "phone/emoji/dizzy.png"
 
+init -1 python:
+    def _phone_bg(img_key, fallback_color):
+        """Return the theme image if loadable, otherwise a Solid fallback."""
+        path = get_phone_theme_value(img_key)
+        if path and renpy.loadable(path):
+            return path
+        return Solid(fallback_color)
+
+    def _phone_bubble(img_key, fallback_color):
+        """Return a Frame bubble if the image exists, otherwise a solid frame."""
+        path = get_phone_theme_value(img_key)
+        if path and renpy.loadable(path):
+            return Frame(path, 23, 23)
+        return Solid(fallback_color)
+
 screen phone_ui():
     zorder 100
+    modal True
     default was_channel_unread = False
-    window:
+
+    # Click-away backdrop to close phone
+    button:
+        background "#00000066"
+        xfill True
+        yfill True
+        action Function(lc_hide_phone)
+
+    frame:
         at phone_position(phone_zoom, phone_x, phone_y)
         xalign 0.5
-        yalign 0.5 
+        yalign 0.5
         xsize 600
         ysize 1000
-        # screen goes first as base will cover up some of it
-        add get_phone_theme_value("screen_background_image")
-        add get_phone_theme_value("header_background_image")
-        add get_phone_theme_value("base_background_image")
-        # if in a chat, add a back button
-        if current_phone_view != "channel_list" and disable_phone_menu_switch == False:
-                $ back_icon_path = get_phone_theme_value("back_button_notif_image") if has_any_notification_not_active() else get_phone_theme_value("back_button_idle_image")
-                imagebutton:
-                    xalign 0.15
-                    yalign 0.1075
-                    idle back_icon_path
-                    hover back_icon_path
-                    focus_mask True
-                    xysize (75, 75)
+        background Solid("#0f172a")
+        padding (0, 0)
+
+        # Phone body background (only add if actual image exists)
+        python:
+            _screen_bg_path = get_phone_theme_value("screen_background_image")
+            _has_screen_bg = _screen_bg_path and renpy.loadable(_screen_bg_path)
+        if _has_screen_bg:
+            add _screen_bg_path
+
+        # ── HEADER BAR ────────────────────────────────────────
+        frame:
+            xfill True
+            ysize 80
+            background Solid("#1e293b")
+            padding (16, 0)
+
+            # Back button (text-based, no image needed)
+            if current_phone_view != "channel_list" and disable_phone_menu_switch == False:
+                textbutton "← Back":
+                    yalign 0.5
+                    xalign 0.0
+                    padding (8, 6)
+                    background None
+                    hover_background "#33415544"
+                    text_size 22
+                    text_color "#94a3b8"
+                    text_hover_color "#f472b6"
                     action SetVariable("current_phone_view", "channel_list")
-        # close / dismiss the phone
-        textbutton "✕":
-            xalign 0.915
-            yalign 0.058
-            padding (10, 6)
-            background "#00000000"
-            hover_background "#00000033"
-            text_style "default"
-            text_size 28
-            text_color get_phone_theme_value("header_text_colour")
-            text_hover_color "#FFFFFF"
-            action Function(lc_hide_phone)
-        # viewport to hold messages for scrolling
+                # Show notif dot next to back if other channels have notifs
+                if has_any_notification_not_active():
+                    text "●":
+                        color "#f43f5e"
+                        size 14
+                        xalign 0.12
+                        yalign 0.35
+
+            # Header title
+            if current_phone_view != "channel_list":
+                text phone_channel_data[current_phone_view]["display_name"]:
+                    color "#f472b6"
+                    size 24
+                    bold True
+                    xalign 0.5
+                    yalign 0.5
+            else:
+                text phone_config["channels_title"]:
+                    color "#f472b6"
+                    size 24
+                    bold True
+                    xalign 0.5
+                    yalign 0.5
+
+            # Close button
+            textbutton "✕":
+                xalign 1.0
+                yalign 0.5
+                padding (12, 8)
+                background None
+                hover_background "#f43f5e44"
+                text_size 26
+                text_color "#94a3b8"
+                text_hover_color "#f43f5e"
+                action Function(lc_hide_phone)
+
+        # ── MAIN CONTENT ──────────────────────────────────────
         vbox:
-            id "phone_viewport"
-            xsize 450
-            ysize 775
-            yalign 0.325
-            xalign 0.475
-            vbox:
-                spacing 10
-                # display at the top of the screen the name of the current chat (or title for list)
-                if current_phone_view != "channel_list":
-                    null height 5
-                    add phone_channel_data[current_phone_view]["icon"]:
-                            xalign 0.5
-                            xysize (50, 50)
-                    text phone_channel_data[current_phone_view]["display_name"]:
-                        style "phone_header_style"
-                        ypos -5
-                else:
-                    null height 40
-                    text phone_config["channels_title"]:
-                        style "phone_header_style"
-                null height 19
-                # main content
-                if current_phone_view == "channel_list":
-                    $ yadj = ui.adjustment()
-                    viewport:
-                        id "message_viewport" 
-                        xfill True
-                        ysize 750
-                        yadjustment yadj
-                        scrollbars "vertical"
-                        mousewheel True
-                        # list of chats
-                        vbox:
-                            spacing 15 
-                            $ visible_channels = [ch for ch in phone_channel_data.keys() if channel_visible.get(ch, True)]
-                            python:
-                                if phone_config["sort_channels_by_latest"]:
-                                    channel_list_to_display = sorted(visible_channels, key=lambda ch_name: channel_latest_global_id.get(ch_name, 0), reverse=True)
-                                else:
-                                    channel_list_to_display = visible_channels
-                            for channel_name in channel_list_to_display:
-                                button:
-                                    action [
-                                        SetDict(channel_notifs, channel_name, False),
-                                        SetVariable("current_phone_view", channel_name)
-                                    ]
-                                    style "phone_channel_button_style"
-                                    xfill True
-                                    # contains the chat description and a little line after
-                                    vbox:
-                                        # contains chat icon, chat name, chat preview message, and (conditionally) a notification dot
-                                        hbox:
-                                            # the chat channel icon
-                                            spacing 10
-                                            add phone_channel_data[channel_name]["icon"]:
-                                                xysize (50, 50)
-                                                yalign 0.5
-                                            # the chat channel name and preview message
-                                            vbox: 
-                                                text phone_channel_data[channel_name]["display_name"]:
-                                                    style "phone_channel_name_style"
-                                                text get_channel_preview(channel_name):
-                                                    style "phone_channel_preview_style"
-                                            # add a notification dot if the channel has one
-                                            if channel_notifs.get(channel_name, False):
-                                                add get_phone_theme_value("notification_dot_image"):
-                                                    xalign 1.0
-                                                    yalign 0.6
-                                                    xoffset -5
-                                                    size (25, 25)
-                                        # add a line below every channel
-                                        null height 10
-                                        frame:
-                                            background get_phone_theme_value("channel_divider_colour")
-                                            xfill True
-                                            ysize 1
-                else:
-                    # inside a specific chat
-                    $ yadj = ui.adjustment()
-                    viewport:
-                        id "message_viewport" 
-                        xfill True
-                        ysize 750
-                        yadjustment yadj
-                        scrollbars "vertical"
-                        mousewheel True
-                        draggable False
-                        # do this once when it opens
-                        if phone_config["auto_scroll"]:
-                            $ yadj.value = (yadj.range + 1000)
-                        vbox:
-                            spacing 8
-                            xfill True
-                            if current_phone_view in phone_channels:
-                                $ latest_channel_id = channel_last_message_id.get(current_phone_view, 0)
-                                $ last_sender_in_chat_view = None
-                                # display all messages
-                                for message_data in phone_channels[current_phone_view]:
-                                    $ msg_id, sender, message_text, message_kind, current_global_id, summary_alt, image_x, image_y = message_data               
-                                    if sender == phone_config["phone_player_name"]:
-                                        $ bubble_image = get_phone_theme_value("player_bubble_image")
-                                        $ text_colour = get_phone_theme_value("message_player_text_colour")
-                                        $ anim_direction = 1
-                                    else:
-                                        $ bubble_image = get_phone_theme_value("character_bubble_image")
-                                        $ text_colour = get_phone_theme_value("message_character_text_colour")
-                                        $ anim_direction = -1
-                                    $ msg_padding = phone_config["message_padding"]
-                                    # displaying the sender's name for group chats
-                                    $ is_group_chat = phone_channel_data[current_phone_view]["is_group"]
-                                    if is_group_chat and sender != phone_config["phone_player_name"] and sender != last_sender_in_chat_view:
-                                        text sender:
-                                            style "phone_sender_name_style"
-                                            xalign msg_padding 
-                                            xoffset 5
-                                    # now make the message bubble for text
-                                    if message_kind == 0:
-                                        frame:
-                                            if sender == phone_config["phone_player_name"]:
-                                                xpos 1.0 - msg_padding xanchor 1.0
-                                            else:
-                                                xpos msg_padding xanchor 0.0
-                                            background Frame(bubble_image, 23, 23)
-                                            padding (15, 10)
-                                            xmaximum 360
-                                            if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
-                                                at message_appear(anim_direction)
-                                                $ channel_seen_latest[current_phone_view] = True
-                                                $ channel_notifs[current_phone_view] = False
-                                                if phone_config["auto_scroll"]:
-                                                    $ yadj.value = (yadj.range + 1000)
-                                            text message_text:
-                                                color text_colour
-                                                size phone_config["message_font_size"]
-                                                layout "tex"
-                                        $ last_sender_in_chat_view = sender
-                                    elif message_kind == 1:
-                                        # this is a timestamp
-                                        null height 15
-                                        hbox:
-                                            xalign 0.5
-                                            xmaximum 360
-                                            if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
-                                                at timestamp_appear()
-                                                $ channel_seen_latest[current_phone_view] = True
-                                                $ channel_notifs[current_phone_view] = False
-                                                if phone_config["auto_scroll"]:
-                                                    $ yadj.value = (yadj.range + 1000)
-                                            text message_text:
-                                                color get_phone_theme_value("timestamp_text_colour")
-                                                size phone_config["timestamp_font_size"]
-                                                layout "tex"
-                                        null height 15
-                                        $ last_sender_in_chat_view = None
-                                    elif message_kind == 2: 
-                                        # this is a photo
-                                        frame:
-                                            if sender == phone_config["phone_player_name"]:
-                                                xpos 1.0 - msg_padding xanchor 1.0
-                                            else:
-                                                xpos msg_padding xanchor 0.0
-                                            background Frame(bubble_image, 23, 23)
-                                            padding (10, 10)
-                                            xmaximum 360
-                                            if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
-                                                at message_appear(anim_direction)
-                                                $ channel_seen_latest[current_phone_view] = True
-                                                $ channel_notifs[current_phone_view] = False
-                                                if phone_config["auto_scroll"]:
-                                                    $ yadj.value = (yadj.range + 1000)
-                                            add Image(message_text) at scale_to_fit(image_x, image_y)
-                                        $ last_sender_in_chat_view = sender
-                                    elif message_kind == 3:
-                                        # this is a message with emojis
-                                        frame:
-                                            if sender == phone_config["phone_player_name"]:
-                                                xpos 1.0 - msg_padding xanchor 1.0
-                                            else:
-                                                xpos msg_padding xanchor 0.0
-                                            background Frame(bubble_image, 23, 23)
-                                            padding (10, 10)
-                                            xmaximum 360
-                                            if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
-                                                at message_appear(anim_direction)
-                                                $ channel_seen_latest[current_phone_view] = True
-                                                $ channel_notifs[current_phone_view] = False
-                                                if phone_config["auto_scroll"]:
-                                                    $ yadj.value = (yadj.range + 1000)
-                                            hbox:
-                                                spacing 5
-                                                xmaximum 340
-                                                text replace_emojis(message_text):
-                                                    size phone_config["message_font_size"]
-                                                    color text_colour
-                                                    layout "tex"
-                                        $ last_sender_in_chat_view = sender
+            xsize 560
+            ypos 85
+            xalign 0.5
+
+            if current_phone_view == "channel_list":
+                # ── CHANNEL LIST ──────────────────────────────
+                $ yadj = ui.adjustment()
+                viewport:
+                    id "message_viewport"
+                    xfill True
+                    ysize 880
+                    yadjustment yadj
+                    scrollbars "vertical"
+                    mousewheel True
+                    vbox:
+                        spacing 4
+                        $ visible_channels = [ch for ch in phone_channel_data.keys() if channel_visible.get(ch, True)]
+                        python:
+                            if phone_config["sort_channels_by_latest"]:
+                                channel_list_to_display = sorted(visible_channels, key=lambda ch_name: channel_latest_global_id.get(ch_name, 0), reverse=True)
                             else:
-                                text phone_config["empty_channel_message"]:
-                                    style "phone_message_style"
-                            # if there's a choice
-                            if phone_choice_options and phone_choice_channel == current_phone_view:
-                                null height 20
+                                channel_list_to_display = visible_channels
+                        for channel_name in channel_list_to_display:
+                            button:
+                                action [
+                                    SetDict(channel_notifs, channel_name, False),
+                                    SetVariable("current_phone_view", channel_name)
+                                ]
+                                xfill True
+                                background None
+                                hover_background "#1e293b"
+                                padding (12, 10)
                                 vbox:
-                                    xalign 0.5
-                                    spacing 8
-                                    for i, (preview_text, actual_message, action) in enumerate(phone_choice_options):
-                                        $ message_to_send = actual_message if actual_message is not None else preview_text
-                                        $ text_colour = get_phone_theme_value("message_player_text_colour") # choices = always player
-                                        textbutton preview_text at choice_appear(delay = i * 0.1):
-                                            action [
-                                                SetVariable("phone_choice_options", []),
-                                                SetVariable("phone_choice_channel", None),
-                                                SetVariable("disable_phone_menu_switch", False),
-                                                Function(send_phone_message, sender=phone_config["phone_player_name"], message_text=message_to_send, channel_name=current_phone_view, do_pause=False),
-                                                If(action is not None, action),
-                                                Return()
-                                            ]
-                                            background Frame(get_phone_theme_value("player_bubble_image"), 23, 23)
-                                            idle_background Frame(get_phone_theme_value("player_bubble_image"), 23, 23)
-                                            hover_background Frame(get_phone_theme_value("player_bubble_hover_image"), 23, 23)
-                                            text_color text_colour
-                                            text_size phone_config["choice_font_size"]
-                                            text_align 0.5
-                                            xalign 0.5 
-                                            padding (15, 10)
-                            # add a bit of extra padding to the bottom of the viewport
-                            null height 30
+                                    hbox:
+                                        spacing 12
+                                        yalign 0.5
+                                        # Contact initial circle
+                                        python:
+                                            _ch_dname = phone_channel_data[channel_name]["display_name"]
+                                            _ch_initial = _ch_dname[0] if _ch_dname else "?"
+                                            _ch_icon_path = phone_channel_data[channel_name].get("icon", "")
+                                            _ch_has_icon = _ch_icon_path and renpy.loadable(_ch_icon_path)
+                                        if _ch_has_icon:
+                                            add _ch_icon_path:
+                                                xysize (44, 44)
+                                                yalign 0.5
+                                        else:
+                                            frame:
+                                                xysize (44, 44)
+                                                background Solid("#334155")
+                                                yalign 0.5
+                                                text _ch_initial:
+                                                    color "#f472b6"
+                                                    size 22
+                                                    bold True
+                                                    xalign 0.5
+                                                    yalign 0.5
+                                        # Name + preview
+                                        vbox:
+                                            spacing 2
+                                            text phone_channel_data[channel_name]["display_name"]:
+                                                color "#e2e8f0"
+                                                size 20
+                                                bold True
+                                            text get_channel_preview(channel_name):
+                                                color "#94a3b8"
+                                                size 16
+                                        # Notification dot
+                                        if channel_notifs.get(channel_name, False):
+                                            text "●":
+                                                color "#f43f5e"
+                                                size 16
+                                                xalign 1.0
+                                                yalign 0.5
+                                    # Divider line
+                                    null height 4
+                                    frame:
+                                        background Solid("#1e293b")
+                                        xfill True
+                                        ysize 1
+            else:
+                # ── CHAT VIEW ─────────────────────────────────
+                $ yadj = ui.adjustment()
+                viewport:
+                    id "message_viewport"
+                    xfill True
+                    ysize 880
+                    yadjustment yadj
+                    scrollbars "vertical"
+                    mousewheel True
+                    draggable False
+                    if phone_config["auto_scroll"]:
+                        $ yadj.value = (yadj.range + 1000)
+                    vbox:
+                        spacing 8
+                        xfill True
+                        null height 8
+                        if current_phone_view in phone_channels:
+                            $ latest_channel_id = channel_last_message_id.get(current_phone_view, 0)
+                            $ last_sender_in_chat_view = None
+                            for message_data in phone_channels[current_phone_view]:
+                                $ msg_id, sender, message_text, message_kind, current_global_id, summary_alt, image_x, image_y = message_data
+                                if sender == phone_config["phone_player_name"]:
+                                    $ bubble_bg = _phone_bubble("player_bubble_image", "#7c3aed")
+                                    $ text_colour = get_phone_theme_value("message_player_text_colour")
+                                    $ anim_direction = 1
+                                else:
+                                    $ bubble_bg = _phone_bubble("character_bubble_image", "#334155")
+                                    $ text_colour = get_phone_theme_value("message_character_text_colour")
+                                    $ anim_direction = -1
+                                $ msg_padding = phone_config["message_padding"]
+                                # Sender name for group chats
+                                $ is_group_chat = phone_channel_data[current_phone_view]["is_group"]
+                                if is_group_chat and sender != phone_config["phone_player_name"] and sender != last_sender_in_chat_view:
+                                    text sender:
+                                        style "phone_sender_name_style"
+                                        xalign msg_padding
+                                        xoffset 5
+                                # Text message
+                                if message_kind == 0:
+                                    frame:
+                                        if sender == phone_config["phone_player_name"]:
+                                            xpos 1.0 - msg_padding xanchor 1.0
+                                        else:
+                                            xpos msg_padding xanchor 0.0
+                                        background bubble_bg
+                                        padding (15, 10)
+                                        xmaximum 360
+                                        if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
+                                            at message_appear(anim_direction)
+                                            $ channel_seen_latest[current_phone_view] = True
+                                            $ channel_notifs[current_phone_view] = False
+                                            if phone_config["auto_scroll"]:
+                                                $ yadj.value = (yadj.range + 1000)
+                                        text message_text:
+                                            color text_colour
+                                            size phone_config["message_font_size"]
+                                            layout "tex"
+                                    $ last_sender_in_chat_view = sender
+                                elif message_kind == 1:
+                                    # Timestamp
+                                    null height 15
+                                    hbox:
+                                        xalign 0.5
+                                        xmaximum 360
+                                        if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
+                                            at timestamp_appear()
+                                            $ channel_seen_latest[current_phone_view] = True
+                                            $ channel_notifs[current_phone_view] = False
+                                            if phone_config["auto_scroll"]:
+                                                $ yadj.value = (yadj.range + 1000)
+                                        text message_text:
+                                            color get_phone_theme_value("timestamp_text_colour")
+                                            size phone_config["timestamp_font_size"]
+                                            layout "tex"
+                                    null height 15
+                                    $ last_sender_in_chat_view = None
+                                elif message_kind == 2:
+                                    # Photo
+                                    frame:
+                                        if sender == phone_config["phone_player_name"]:
+                                            xpos 1.0 - msg_padding xanchor 1.0
+                                        else:
+                                            xpos msg_padding xanchor 0.0
+                                        background bubble_bg
+                                        padding (10, 10)
+                                        xmaximum 360
+                                        if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
+                                            at message_appear(anim_direction)
+                                            $ channel_seen_latest[current_phone_view] = True
+                                            $ channel_notifs[current_phone_view] = False
+                                            if phone_config["auto_scroll"]:
+                                                $ yadj.value = (yadj.range + 1000)
+                                        add Image(message_text) at scale_to_fit(image_x, image_y)
+                                    $ last_sender_in_chat_view = sender
+                                elif message_kind == 3:
+                                    # Emoji message
+                                    frame:
+                                        if sender == phone_config["phone_player_name"]:
+                                            xpos 1.0 - msg_padding xanchor 1.0
+                                        else:
+                                            xpos msg_padding xanchor 0.0
+                                        background bubble_bg
+                                        padding (10, 10)
+                                        xmaximum 360
+                                        if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
+                                            at message_appear(anim_direction)
+                                            $ channel_seen_latest[current_phone_view] = True
+                                            $ channel_notifs[current_phone_view] = False
+                                            if phone_config["auto_scroll"]:
+                                                $ yadj.value = (yadj.range + 1000)
+                                        hbox:
+                                            spacing 5
+                                            xmaximum 340
+                                            text replace_emojis(message_text):
+                                                size phone_config["message_font_size"]
+                                                color text_colour
+                                                layout "tex"
+                                    $ last_sender_in_chat_view = sender
+                        else:
+                            text "No messages yet.":
+                                style "phone_message_style"
+                        # Choices
+                        if phone_choice_options and phone_choice_channel == current_phone_view:
+                            null height 20
+                            vbox:
+                                xalign 0.5
+                                spacing 8
+                                for i, (preview_text, actual_message, action) in enumerate(phone_choice_options):
+                                    $ message_to_send = actual_message if actual_message is not None else preview_text
+                                    $ text_colour = get_phone_theme_value("message_player_text_colour")
+                                    textbutton preview_text at choice_appear(delay = i * 0.1):
+                                        action [
+                                            SetVariable("phone_choice_options", []),
+                                            SetVariable("phone_choice_channel", None),
+                                            SetVariable("disable_phone_menu_switch", False),
+                                            Function(send_phone_message, sender=phone_config["phone_player_name"], message_text=message_to_send, channel_name=current_phone_view, do_pause=False),
+                                            If(action is not None, action),
+                                            Return()
+                                        ]
+                                        background _phone_bubble("player_bubble_image", "#7c3aed")
+                                        idle_background _phone_bubble("player_bubble_image", "#7c3aed")
+                                        hover_background _phone_bubble("player_bubble_hover_image", "#8b5cf6")
+                                        text_color text_colour
+                                        text_size phone_config["choice_font_size"]
+                                        text_align 0.5
+                                        xalign 0.5
+                                        padding (15, 10)
+                        null height 30
 
 style phone_header_style is default:
-    size 28
-    color get_phone_theme_value("header_text_colour") 
+    size 24
+    color "#f472b6"
+    bold True
     xalign 0.5
 
 style phone_channel_button_style is button:
     background None
-    hover_background get_phone_theme_value("channel_button_hover_background")
-    xpadding 10
-    ypadding 8
+    hover_background "#1e293b"
+    xpadding 12
+    ypadding 10
 
 style phone_channel_name_style is default:
-    size 22
-    color get_phone_theme_value("channel_name_text_colour")
+    size 20
+    color "#e2e8f0"
     bold True
 
 style phone_channel_preview_style is default:
-    size 18
-    color get_phone_theme_value("channel_preview_text_colour")
+    size 16
+    color "#94a3b8"
 
 style phone_message_style is default:
     size 20
-    color get_phone_theme_value("empty_channel_text_colour")
+    color "#94a3b8"
     xalign 0.0
 
 style phone_sender_name_style is default:
     size 16
-    color get_phone_theme_value("sender_name_text_colour")
-    yoffset 2 
+    color "#f472b6"
+    yoffset 2
     ypadding 0
     yalign 1.0
 
