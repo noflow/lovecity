@@ -27,7 +27,7 @@ define gui.label_text_size         = 24
 define gui.notify_text_size        = 18
 
 ## Dialogue box
-define gui.textbox_height          = 185
+define gui.textbox_height          = 210
 define gui.textbox_yalign          = 1.0
 
 define gui.namebox_width           = None
@@ -35,17 +35,17 @@ define gui.namebox_height          = None
 define gui.namebox_borders         = Borders(5, 5, 5, 5)
 define gui.namebox_tile            = False
 
-## Dialogue text position
-define gui.text_xpos               = 268
-define gui.text_ypos               = 6
-define gui.text_xsize              = 744
-define gui.text_width              = 744
-define gui.text_ysize              = 180
+## Dialogue text position (inside blue body area)
+define gui.text_xpos               = 40
+define gui.text_ypos               = 46
+define gui.text_xsize              = 1120
+define gui.text_width              = 1120
+define gui.text_ysize              = 150
 define gui.text_xalign             = 0.0
 
-## Character name position
-define gui.name_xpos               = 295
-define gui.name_ypos               = -22
+## Character name position (inside white top bar)
+define gui.name_xpos               = 40
+define gui.name_ypos               = 6
 
 ## Choice buttons
 define gui.choice_button_width         = 790

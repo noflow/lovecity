@@ -294,7 +294,7 @@ style say_who:
     xanchor 0.0
     ypos gui.name_ypos
     yanchor 0.0
-    color "#f472b6"
+    color "#1e293b"
     bold True
     size gui.name_text_size
 
@@ -304,6 +304,7 @@ style say_dialogue:
     ypos gui.text_ypos
     yanchor 0.0
     xsize gui.text_width
+    color "#e2e8f0"
     size gui.text_size
 
 ## ── PHONE SYSTEM — screen say override ──────────────────────────
@@ -315,7 +316,7 @@ screen say(who, what):
     window:
         id "window"
 
-        background (None if (_phone_ok() and phone_mode) else Image("gui/textbox.png", xalign=0.5, yalign=1.0))
+        background (None if (_phone_ok() and phone_mode) else Frame("gui/locationhub/textbox_blue.png", 20, 40, 20, 20, xalign=0.5, yalign=1.0))
         xalign 0.5
         xfill True
         yalign gui.textbox_yalign
