@@ -316,7 +316,7 @@ screen say(who, what):
     window:
         id "window"
 
-        background (None if (_phone_ok() and phone_mode) else "gui/locationhub/textbox_blue.png")
+        background (None if (_phone_ok() and phone_mode) else Transform("gui/locationhub/textbox_blue.png", size=(468, 111)))
         xalign 0.5
         xsize 468
         yalign gui.textbox_yalign
