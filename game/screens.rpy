@@ -285,7 +285,7 @@ screen lc_diary_screen():
 
 style say_window:
     xalign 0.5
-    xfill True
+    xsize 780
     yalign gui.textbox_yalign
     ysize gui.textbox_height
 
@@ -316,11 +316,13 @@ screen say(who, what):
     window:
         id "window"
 
-        background (None if (_phone_ok() and phone_mode) else Frame("gui/locationhub/textbox_blue.png", 20, 40, 20, 20, xalign=0.5, yalign=1.0))
+        background (None if (_phone_ok() and phone_mode) else "gui/locationhub/textbox_blue.png")
         xalign 0.5
-        xfill True
+        xsize 780
         yalign gui.textbox_yalign
         ysize gui.textbox_height
+        xpadding 0
+        ypadding 0
 
         if who is not None:
             text who id "who"
