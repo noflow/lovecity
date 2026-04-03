@@ -86,8 +86,8 @@ label phone_mom_day1:
 
 label phone_sister_day1:
     if _phone_ok():
-        $ lc_text("ch_sister", "Cass", "hey")
-        $ lc_text("ch_sister", "Cass", "you survive orientation?")
+        $ lc_text("ch_sister", "Emma", "hey")
+        $ lc_text("ch_sister", "Emma", "you survive orientation?")
     return
 
 

@@ -17,9 +17,13 @@ lovecity/
     ├── sandbox.rpy          ← Core sandbox loop + all location actions
     ├── bg_colors.rpy        ← BG colour fallbacks + image declarations
     ├── gui.rpy              ← GUI styling (colours, fonts, dialogue box)
+    ├── phone.rpy            ← Phone messaging system (KleineLuka MIT)
+    ├── mainmenu.rpy         ← Custom main-menu screen
+    ├── screen_shims.rpy     ← Screen compatibility shims
     ├── backgrounds/         ← Drop .webp/.jpg BG images here (1280×720px)
     │   └── bedroom.webp     ← First room background (included)
     └── story/
+        ├── phone_setup.rpy  ← Phone init, helpers, day-1 messages
         ├── intro.rpy        ← Opening day: wake up, mom, sister, cora
         ├── alex.rpy         ← Alex Rivera arc (café barista)
         ├── dr_rivera.rpy    ← Dr. Rivera therapy arc
