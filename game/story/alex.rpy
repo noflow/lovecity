@@ -1,5 +1,7 @@
 ## story/alex.rpy — Alex Rivera arc
 ## ═══════════════════════════════════════════════════════════════
+## OVERRIDABLE: Export gen_talk_alex / gen_meet_alex_first to
+## story/generated/ to replace these fallback labels.
 ## Alex works at Moondrop Café (weekday afternoons + weekend mornings)
 ## Free-spirited barista. Paints on weekends.
 ## ═══════════════════════════════════════════════════════════════

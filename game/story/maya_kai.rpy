@@ -1,5 +1,7 @@
 ## story/maya_kai.rpy — Maya Chen + Kai Nakamura meet scenes
 ## ═══════════════════════════════════════════════════════════════
+## OVERRIDABLE: Export gen_talk_maya / gen_talk_kai etc. to
+## story/generated/ to replace these fallback labels.
 
 ## ── MAYA ─────────────────────────────────────────────────────
 label meet_maya_first:

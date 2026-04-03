@@ -1,5 +1,7 @@
 ## story/intro.rpy — Opening day of LoveCity
 ## ═══════════════════════════════════════════════════════════════
+## OVERRIDABLE: Export gen_* labels to story/generated/ to replace.
+## Labels here are FALLBACKS — gen_talk_* / gen_meet_* take priority.
 
 label lc_start:
     # Name entry
@@ -362,7 +364,9 @@ label talk_theo:
     return
 
 ## ── PLACEHOLDER STUBS FOR OTHER NPCS ───────────────────────────
-## These will be filled in as scenes are written
+## These are FALLBACKS — they run only when no gen_talk_* label exists.
+## When the story system exports gen_talk_nadia.rpy (etc.), that
+## label takes priority and this code is never reached.
 
 label talk_nadia:
     show nadia at center with dissolve

@@ -133,13 +133,19 @@ label sandbox_room_driver:
         call sandbox_room_enter_event
     elif _sandbox_next == "talk":
         $ lc_set_bg("home", current_room)
-        if renpy.has_label("talk_" + _sandbox_val):
+        # Generated story labels (gen_talk_*) override hardcoded (talk_*)
+        if renpy.has_label("gen_talk_" + _sandbox_val):
+            call expression "gen_talk_" + _sandbox_val
+        elif renpy.has_label("talk_" + _sandbox_val):
             call expression "talk_" + _sandbox_val
         else:
             call talk_default
     elif _sandbox_next == "action":
         $ lc_set_bg("home", current_room)
-        call expression "action_home_" + _sandbox_val
+        if renpy.has_label("gen_action_home_" + _sandbox_val):
+            call expression "gen_action_home_" + _sandbox_val
+        else:
+            call expression "action_home_" + _sandbox_val
     elif _sandbox_next == "wait":
         $ advance_time(1)
         python:
@@ -197,13 +203,20 @@ label sandbox_hub_driver:
         jump sandbox_map_driver
     elif _sandbox_next == "talk":
         $ lc_set_bg(current_location)
-        if renpy.has_label("talk_" + _sandbox_val):
+        # Generated story labels (gen_talk_*) override hardcoded (talk_*)
+        if renpy.has_label("gen_talk_" + _sandbox_val):
+            call expression "gen_talk_" + _sandbox_val
+        elif renpy.has_label("talk_" + _sandbox_val):
             call expression "talk_" + _sandbox_val
         else:
             call talk_default
     elif _sandbox_next == "action":
         $ lc_set_bg(current_location)
-        call expression "action_" + current_location + "_" + _sandbox_val
+        $ _action_lbl = "action_" + current_location + "_" + _sandbox_val
+        if renpy.has_label("gen_" + _action_lbl):
+            call expression "gen_" + _action_lbl
+        elif renpy.has_label(_action_lbl):
+            call expression _action_lbl
     elif _sandbox_next == "wait":
         $ advance_time(1)
         python:

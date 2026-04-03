@@ -1,5 +1,7 @@
 ## story/dr_rivera.rpy — Dr. Elena Rivera arc
 ## ═══════════════════════════════════════════════════════════════
+## OVERRIDABLE: Export gen_talk_dr_rivera / gen_meet_dr_rivera to
+## story/generated/ to replace these fallback labels.
 ## Therapist at Luminos Clinic. The transformation arc hub.
 ## ═══════════════════════════════════════════════════════════════
 

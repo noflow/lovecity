@@ -1,5 +1,7 @@
 ## story/luna.rpy — Luna Voss arc
 ## ═══════════════════════════════════════════════════════════════
+## OVERRIDABLE: Export gen_talk_luna / gen_meet_luna_first to
+## story/generated/ to replace these fallback labels.
 ## Night shift nurse at Luminos Clinic. Found evenings/nights.
 ## ═══════════════════════════════════════════════════════════════
 
