@@ -57,7 +57,7 @@ screen stat_bar(label, value, max_val=100, color="#f472b6", icon=""):
             ysize 8
             left_bar  Frame("#1e293b", 0, 0)
             right_bar Frame("#0f172a", 0, 0)
-            thumb ""
+            thumb None
         text "[value]" style "lc_value" xminimum 38 text_align 1.0
 
 ## ── HUD OVERLAY ─────────────────────────────────────────────────
@@ -121,19 +121,19 @@ screen lc_menu():
             action [Function(lc_hide_screen, "lc_menu"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "💾 Save Game":
-            action [Function(lc_show_screen, "save"), NullAction()]
+            action [Function(lc_hide_screen, "lc_menu"), Function(lc_show_screen, "lc_save_screen"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "📂 Load Game":
-            action [Function(lc_show_screen, "load"), NullAction()]
+            action [Function(lc_hide_screen, "lc_menu"), Function(lc_show_screen, "lc_load_screen"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "📊 Stats":
-            action [Function(lc_show_screen, "lc_stats_screen"), NullAction()]
+            action [Function(lc_hide_screen, "lc_menu"), Function(lc_show_screen, "lc_stats_screen"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "📓 Diary":
-            action [Function(lc_show_screen, "lc_diary_screen"), NullAction()]
+            action [Function(lc_hide_screen, "lc_menu"), Function(lc_show_screen, "lc_diary_screen"), NullAction()]
             style "lc_button" xalign 0.5
         textbutton "⚙️ Preferences":
-            action [Function(lc_show_screen, "preferences"), NullAction()]
+            action [Function(lc_hide_screen, "lc_menu"), Function(lc_show_screen, "lc_preferences_screen"), NullAction()]
             style "lc_button" xalign 0.5
         null height 8
         textbutton "🚪 Main Menu":
@@ -231,7 +231,7 @@ screen lc_rel_screen():
                                 ysize 8
                                 left_bar  Frame("#f472b688", 0, 0)
                                 right_bar Frame("#1e293b", 0, 0)
-                                thumb ""
+                                thumb None
                             text "[rel_val]"  color "#f472b6" size 14 xminimum 36 text_align 1.0
                             if is_dating:
                                 text "💕" size 16
@@ -278,6 +278,293 @@ screen lc_diary_screen():
                                 text "[entry['text']]" color "#94a3b8" size 14
 
 
+## ── SAVE SCREEN ─────────────────────────────────────────────────
+screen lc_save_screen():
+    modal True
+    zorder 150
+    add "#00000099"
+    frame:
+        background "#07071088"
+        padding    (24, 20)
+        xalign  0.5
+        yalign  0.5
+        xsize   740
+        ysize   540
+        vbox:
+            spacing 10
+            hbox:
+                text "💾 Save Game" style "lc_header"
+                null xfill True
+                textbutton "✕":
+                    action Function(_hide_screen, "lc_save_screen")
+                    style "lc_button_small"
+
+            # Page selector
+            hbox:
+                spacing 8
+                xalign 0.5
+                for pg in range(1, 7):
+                    textbutton "[pg]":
+                        action FilePage(pg)
+                        style "lc_button_small"
+
+            null height 6
+
+            # Slot grid
+            viewport:
+                scrollbars "vertical"
+                mousewheel True
+                ysize 400
+                vbox:
+                    spacing 8
+                    for slot_nr in range(1, 9):
+                        python:
+                            slot_name = str(slot_nr)
+                            slot_time = FileTime(slot_name, empty="Empty slot")
+                            slot_save_name = FileSaveName(slot_name, empty="")
+                        button:
+                            action FileSave(slot_name, confirm=True)
+                            xfill True
+                            background "#0f172a"
+                            hover_background "#1e293b"
+                            padding (14, 10)
+                            hbox:
+                                spacing 14
+                                xfill True
+                                text "Slot [slot_nr]" color "#60a5fa" size 16 bold True yalign 0.5 xminimum 80
+                                vbox:
+                                    spacing 2
+                                    if slot_save_name:
+                                        text "[slot_save_name]" color "#e2e8f0" size 15
+                                    text "[slot_time]" color "#475569" size 13
+                                null xfill True
+                                if FileLoadable(slot_name):
+                                    textbutton "🗑":
+                                        action FileDelete(slot_name, confirm=True)
+                                        style "lc_button_small"
+                                        text_size 16
+                                        yalign 0.5
+
+## ── LOAD SCREEN ─────────────────────────────────────────────────
+screen lc_load_screen():
+    modal True
+    zorder 150
+    add "#00000099"
+    frame:
+        background "#07071088"
+        padding    (24, 20)
+        xalign  0.5
+        yalign  0.5
+        xsize   740
+        ysize   540
+        vbox:
+            spacing 10
+            hbox:
+                text "📂 Load Game" style "lc_header"
+                null xfill True
+                textbutton "✕":
+                    action Function(_hide_screen, "lc_load_screen")
+                    style "lc_button_small"
+
+            # Page selector
+            hbox:
+                spacing 8
+                xalign 0.5
+                for pg in range(1, 7):
+                    textbutton "[pg]":
+                        action FilePage(pg)
+                        style "lc_button_small"
+
+            null height 6
+
+            # Slot grid
+            viewport:
+                scrollbars "vertical"
+                mousewheel True
+                ysize 400
+                vbox:
+                    spacing 8
+                    for slot_nr in range(1, 9):
+                        python:
+                            slot_name = str(slot_nr)
+                            slot_time = FileTime(slot_name, empty="Empty slot")
+                            slot_save_name = FileSaveName(slot_name, empty="")
+                        button:
+                            action FileLoad(slot_name, confirm=True)
+                            xfill True
+                            background ("#0f172a" if FileLoadable(slot_name) else "#0a0a1a")
+                            hover_background ("#1e293b" if FileLoadable(slot_name) else "#0a0a1a")
+                            padding (14, 10)
+                            sensitive FileLoadable(slot_name)
+                            hbox:
+                                spacing 14
+                                xfill True
+                                text "Slot [slot_nr]" color ("#60a5fa" if FileLoadable(slot_name) else "#334155") size 16 bold True yalign 0.5 xminimum 80
+                                vbox:
+                                    spacing 2
+                                    if slot_save_name:
+                                        text "[slot_save_name]" color "#e2e8f0" size 15
+                                    text "[slot_time]" color "#475569" size 13
+                                null xfill True
+                                if FileLoadable(slot_name):
+                                    textbutton "🗑":
+                                        action FileDelete(slot_name, confirm=True)
+                                        style "lc_button_small"
+                                        text_size 16
+                                        yalign 0.5
+
+## ── LOAD SCREEN (main menu alias) ───────────────────────────────
+## script.rpy calls "call screen load_screen" from the title
+screen load_screen():
+    use lc_load_screen
+
+## ── PREFERENCES SCREEN ──────────────────────────────────────────
+screen lc_preferences_screen():
+    modal True
+    zorder 150
+    add "#00000099"
+    frame:
+        background "#07071088"
+        padding    (24, 20)
+        xalign  0.5
+        yalign  0.5
+        xsize   680
+        ysize   540
+        vbox:
+            spacing 12
+            hbox:
+                text "⚙️ Preferences" style "lc_header"
+                null xfill True
+                textbutton "✕":
+                    action Function(_hide_screen, "lc_preferences_screen")
+                    style "lc_button_small"
+            null height 6
+
+            # Music volume
+            hbox:
+                spacing 10
+                xfill True
+                text "🎵 Music" color "#94a3b8" size 16 yalign 0.5 xminimum 160
+                bar:
+                    value Preference("music volume")
+                    xfill True
+                    ysize 12
+                    left_bar  Frame("#f472b6", 0, 0)
+                    right_bar Frame("#1e293b", 0, 0)
+                    thumb None
+
+            # Sound volume
+            hbox:
+                spacing 10
+                xfill True
+                text "🔊 Sound" color "#94a3b8" size 16 yalign 0.5 xminimum 160
+                bar:
+                    value Preference("sound volume")
+                    xfill True
+                    ysize 12
+                    left_bar  Frame("#60a5fa", 0, 0)
+                    right_bar Frame("#1e293b", 0, 0)
+                    thumb None
+
+            null height 8
+
+            # Text speed
+            hbox:
+                spacing 10
+                xfill True
+                text "⌨️ Text Speed" color "#94a3b8" size 16 yalign 0.5 xminimum 160
+                bar:
+                    value Preference("text speed")
+                    xfill True
+                    ysize 12
+                    left_bar  Frame("#34d399", 0, 0)
+                    right_bar Frame("#1e293b", 0, 0)
+                    thumb None
+
+            # Auto-forward time
+            hbox:
+                spacing 10
+                xfill True
+                text "⏩ Auto Speed" color "#94a3b8" size 16 yalign 0.5 xminimum 160
+                bar:
+                    value Preference("auto-forward time")
+                    xfill True
+                    ysize 12
+                    left_bar  Frame("#fbbf24", 0, 0)
+                    right_bar Frame("#1e293b", 0, 0)
+                    thumb None
+
+            null height 10
+
+            # Display mode
+            hbox:
+                spacing 14
+                xalign 0.5
+                text "Display:" color "#94a3b8" size 16 yalign 0.5
+                textbutton "Window":
+                    action Preference("display", "window")
+                    style "lc_button_small"
+                    text_color ("#f472b6" if not preferences.fullscreen else "#94a3b8")
+                textbutton "Fullscreen":
+                    action Preference("display", "fullscreen")
+                    style "lc_button_small"
+                    text_color ("#f472b6" if preferences.fullscreen else "#94a3b8")
+
+            null height 6
+
+            # Skip
+            hbox:
+                spacing 14
+                xalign 0.5
+                text "Skip:" color "#94a3b8" size 16 yalign 0.5
+                textbutton "Unseen Text":
+                    action Preference("skip", "toggle")
+                    style "lc_button_small"
+                textbutton "After Choices":
+                    action Preference("after choices", "toggle")
+                    style "lc_button_small"
+
+## ── PREFERENCES SCREEN (main menu alias) ────────────────────────
+## script.rpy calls "call screen preferences" from the title
+screen preferences():
+    use lc_preferences_screen
+
+
+## ── CONFIRM SCREEN ──────────────────────────────────────────────
+## Required by FileSave/FileDelete confirm=True
+screen confirm(message, yes_action, no_action):
+    modal True
+    zorder 300
+    add "#000000CC"
+    frame:
+        background "#0f172a"
+        padding    (30, 24)
+        xalign  0.5
+        yalign  0.5
+        xsize   460
+        vbox:
+            spacing 16
+            text "[message]":
+                color "#e2e8f0"
+                size 18
+                xalign 0.5
+                text_align 0.5
+            null height 6
+            hbox:
+                spacing 16
+                xalign 0.5
+                textbutton "Yes":
+                    action yes_action
+                    style "lc_button"
+                    xminimum 120
+                    text_color "#34d399"
+                    text_hover_color "#ffffff"
+                textbutton "No":
+                    action no_action
+                    style "lc_button"
+                    xminimum 120
+                    text_color "#f43f5e"
+                    text_hover_color "#ffffff"
 
 
 ## ── SAY SCREEN STYLES ───────────────────────────────────────────
