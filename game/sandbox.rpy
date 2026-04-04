@@ -163,7 +163,7 @@ label sandbox_room_screen:
         _npcs_here    = []
         # Show NPCs whose NPC_HOME resolves to "home" (player's house)
         for _npc_id in NPC_SCHEDULE:
-            _nloc, _nroom, _ = get_npc_location(_npc_id)
+            _nloc, _nroom, _unused = get_npc_location(_npc_id)
             if _nloc == "home" and (_nroom == current_room or _nroom is None):
                 _npcs_here.append(_npc_id)
     call screen lc_home_room(current_room_id=current_room, npcs_here=_npcs_here, room_actions=_room_actions)

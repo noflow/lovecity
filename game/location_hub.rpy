@@ -268,7 +268,7 @@ screen lc_home_room(current_room_id, npcs_here, room_actions):
                     python:
                         npc_there = []
                         for nid in NPC_SCHEDULE:
-                            nloc, nroom, _ = get_npc_location(nid)
+                            nloc, nroom, _unused = get_npc_location(nid)
                             if nloc == "home" and (nroom == room_id or nroom is None):
                                 npc_there.append(nid)
                         has_npc   = len(npc_there) > 0
