@@ -39,6 +39,7 @@ label meet_maya_first:
             $ add_rel("maya", 4)
 
     $ flag_met_maya = True
+    $ unlock_phone_contact("maya")
     hide maya with dissolve
     return
 
@@ -132,5 +133,6 @@ label meet_kai_first:
             $ add_rel("kai", 5)
 
     $ flag_met_kai = True
+    $ unlock_phone_contact("kai")
     hide kai with dissolve
     return

@@ -22,6 +22,32 @@ init python:
         """True if phone.rpy is installed and ready."""
         return hasattr(store, "reset_phone_data")
 
+    # Maps npc_id (used in flag_met_*) → phone channel_id
+    _NPC_TO_CHANNEL = {
+        "mom": "ch_mom", "sister": "ch_sister",
+        "alex": "ch_alex", "maya": "ch_maya", "kai": "ch_kai",
+        "luna": "ch_luna", "zane": "ch_zane", "nadia": "ch_nadia",
+        "ronnie": "ch_ronnie", "sera": "ch_sera", "simone": "ch_simone",
+        "reo": "ch_reo", "dom": "ch_dom", "jamie": "ch_jamie",
+        "river": "ch_river", "sasha": "ch_sasha", "petra": "ch_petra",
+        "august": "ch_august", "arlo": "ch_arlo", "eli": "ch_eli",
+        "milo": "ch_milo", "oz": "ch_oz", "vesper": "ch_vesper",
+        "rio": "ch_rio", "dana": "ch_dana", "ines": "ch_ines",
+        "theo": "ch_theo", "cora": "ch_cora",
+        "dr_rivera": "ch_rivera", "dr_obi": "ch_dr_obi",
+        "prof_harlow": "ch_harlow",
+        "vivienne": "ch_vivienne", "camille": "ch_camille", "hana": "ch_hana",
+    }
+
+    def unlock_phone_contact(npc_id):
+        """Make a contact visible on the phone after meeting them."""
+        if not _phone_ok():
+            return
+        ch = _NPC_TO_CHANNEL.get(npc_id)
+        if ch and ch in channel_visible:
+            channel_visible[ch] = True
+            renpy.restart_interaction()
+
     def lc_text(channel_id, sender_name, message):
         """
         Send a text message in a channel.

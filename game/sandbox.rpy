@@ -174,6 +174,7 @@ label sandbox_room_screen:
 label sandbox_room_enter_event:
     if current_room == "kitchen" and time_day == 1 and time_period == 0 and not flag_met_sister:
         $ flag_met_sister = True
+        $ unlock_phone_contact("sister")
         show sister at right with dissolve
         sister "Oh — you came in here."
         mc "Morning."

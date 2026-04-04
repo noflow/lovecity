@@ -41,6 +41,7 @@ label meet_alex_first:
             $ add_rel("alex", 4)
 
     $ flag_met_alex = True
+    $ unlock_phone_contact("alex")
     narrator "She doesn't ask your name. She doesn't need to. You'll be back."
     hide alex with dissolve
     return

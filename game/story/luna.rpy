@@ -40,5 +40,6 @@ label meet_luna_first:
     narrator "She says it like she's giving you a useful fact, nothing more."
 
     $ flag_met_luna = True
+    $ unlock_phone_contact("luna")
     hide luna with dissolve
     return

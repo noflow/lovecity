@@ -326,45 +326,55 @@ init -1 python:
         _phone_global_message_counter = 0
         current_phone_view = "channel_list"
         # ── LoveCity Contacts ────────────────────────────────────────
-        # Family
-        create_phone_channel("ch_mom",     "Mom",        ["Mom",        phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_sister",  "Emma",       ["Emma",       phone_config["phone_player_name"]], phone_config["default_icon"])
+        # Maps channel_id → flag that must be True for the contact to appear.
+        # Family channels (None = always visible from start).
+        _me = phone_config["phone_player_name"]
+        _ic = phone_config["default_icon"]
+
+        # Family — always visible
+        create_phone_channel("ch_mom",      "Mom",          ["Mom",          _me], _ic)
+        create_phone_channel("ch_sister",   "Emma",         ["Emma",         _me], _ic)
         # Friends / School
-        create_phone_channel("ch_alex",    "Alex",       ["Alex",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_maya",    "Maya",       ["Maya",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_kai",     "Kai",        ["Kai",        phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_theo",    "Theo",       ["Theo",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_cora",    "Cora Finch", ["Cora Finch", phone_config["phone_player_name"]], phone_config["default_icon"])
+        create_phone_channel("ch_alex",     "Alex",         ["Alex",         _me], _ic)
+        create_phone_channel("ch_maya",     "Maya",         ["Maya",         _me], _ic)
+        create_phone_channel("ch_kai",      "Kai",          ["Kai",          _me], _ic)
+        create_phone_channel("ch_theo",     "Theo",         ["Theo",         _me], _ic)
+        create_phone_channel("ch_cora",     "Cora Finch",   ["Cora Finch",   _me], _ic)
         # Romance
-        create_phone_channel("ch_luna",    "Luna",       ["Luna",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_zane",    "Zane",       ["Zane",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_nadia",   "Nadia",      ["Nadia",      phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_ronnie",  "Ronnie",     ["Ronnie",     phone_config["phone_player_name"]], phone_config["default_icon"])
+        create_phone_channel("ch_luna",     "Luna",         ["Luna",         _me], _ic)
+        create_phone_channel("ch_zane",     "Zane",         ["Zane",         _me], _ic)
+        create_phone_channel("ch_nadia",    "Nadia",        ["Nadia",        _me], _ic)
+        create_phone_channel("ch_ronnie",   "Ronnie",       ["Ronnie",       _me], _ic)
         # Professional
-        create_phone_channel("ch_rivera",  "Dr. Rivera", ["Dr. Rivera", phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_dr_obi",  "Dr. Obi",   ["Dr. Obi",   phone_config["phone_player_name"]], phone_config["default_icon"])
+        create_phone_channel("ch_rivera",   "Dr. Rivera",   ["Dr. Rivera",   _me], _ic)
+        create_phone_channel("ch_dr_obi",   "Dr. Obi",      ["Dr. Obi",      _me], _ic)
         # Lifestyle / Community
-        create_phone_channel("ch_sera",    "Sera",       ["Sera",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_simone",  "Simone",     ["Simone",     phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_reo",     "Reo",        ["Reo",        phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_dom",     "Dom",        ["Dom",        phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_jamie",   "Jamie",      ["Jamie",      phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_river",   "River",      ["River",      phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_sasha",   "Sasha",      ["Sasha",      phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_petra",   "Petra",      ["Petra",      phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_august",  "August",     ["August",     phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_arlo",    "Arlo",       ["Arlo",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_eli",     "Eli",        ["Eli",        phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_milo",    "Milo",       ["Milo",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_oz",      "Oz",         ["Oz",         phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_vesper",  "Vesper",     ["Vesper",     phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_rio",     "Rio",        ["Rio",        phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_dana",    "Dana",       ["Dana",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_ines",    "Ines",       ["Ines",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_vivienne","Vivienne",   ["Vivienne",   phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_camille", "Camille",    ["Camille",    phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_hana",    "Hana",       ["Hana",       phone_config["phone_player_name"]], phone_config["default_icon"])
-        create_phone_channel("ch_harlow",  "Prof. Harlow",["Prof. Harlow",phone_config["phone_player_name"]], phone_config["default_icon"])
+        create_phone_channel("ch_sera",     "Sera",         ["Sera",         _me], _ic)
+        create_phone_channel("ch_simone",   "Simone",       ["Simone",       _me], _ic)
+        create_phone_channel("ch_reo",      "Reo",          ["Reo",          _me], _ic)
+        create_phone_channel("ch_dom",      "Dom",          ["Dom",          _me], _ic)
+        create_phone_channel("ch_jamie",    "Jamie",        ["Jamie",        _me], _ic)
+        create_phone_channel("ch_river",    "River",        ["River",        _me], _ic)
+        create_phone_channel("ch_sasha",    "Sasha",        ["Sasha",        _me], _ic)
+        create_phone_channel("ch_petra",    "Petra",        ["Petra",        _me], _ic)
+        create_phone_channel("ch_august",   "August",       ["August",       _me], _ic)
+        create_phone_channel("ch_arlo",     "Arlo",         ["Arlo",         _me], _ic)
+        create_phone_channel("ch_eli",      "Eli",          ["Eli",          _me], _ic)
+        create_phone_channel("ch_milo",     "Milo",         ["Milo",         _me], _ic)
+        create_phone_channel("ch_oz",       "Oz",           ["Oz",           _me], _ic)
+        create_phone_channel("ch_vesper",   "Vesper",       ["Vesper",       _me], _ic)
+        create_phone_channel("ch_rio",      "Rio",          ["Rio",          _me], _ic)
+        create_phone_channel("ch_dana",     "Dana",         ["Dana",         _me], _ic)
+        create_phone_channel("ch_ines",     "Ines",         ["Ines",         _me], _ic)
+        create_phone_channel("ch_vivienne", "Vivienne",     ["Vivienne",     _me], _ic)
+        create_phone_channel("ch_camille",  "Camille",      ["Camille",      _me], _ic)
+        create_phone_channel("ch_hana",     "Hana",         ["Hana",         _me], _ic)
+        create_phone_channel("ch_harlow",   "Prof. Harlow", ["Prof. Harlow", _me], _ic)
+
+        # Hide everyone except family — contacts unlock when you meet them
+        for _ch_id in phone_channel_data:
+            if _ch_id not in ("ch_mom", "ch_sister"):
+                channel_visible[_ch_id] = False
         # clear notifications so phone starts clean
         clear_notifications()
         renpy.restart_interaction()

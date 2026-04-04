@@ -52,6 +52,7 @@ label lc_start:
     mom "...People. You'll figure it out."
 
     $ flag_met_mom = True
+    $ unlock_phone_contact("mom")
     hide mom with dissolve
 
     ## ── Meet Sister if home (inlined) ──
@@ -87,6 +88,7 @@ label lc_start:
                 $ add_rel("sister", 1)
 
         $ flag_met_sister = True
+        $ unlock_phone_contact("sister")
         hide sister with dissolve
 
     ## ── Head out ──
@@ -147,6 +149,7 @@ label meet_mom_intro:
     mom "...People. You'll figure it out."
 
     $ flag_met_mom = True
+    $ unlock_phone_contact("mom")
     hide mom with dissolve
     return
 
@@ -192,6 +195,7 @@ label meet_sister_intro:
             $ add_rel("sister", 1)
 
     $ flag_met_sister = True
+    $ unlock_phone_contact("sister")
     hide sister with dissolve
     return
 
@@ -219,6 +223,7 @@ label meet_cora:
             $ add_rel("cora", 6)
 
     $ flag_met_cora = True
+    $ unlock_phone_contact("cora")
     hide cora with dissolve
     return
 
@@ -345,6 +350,7 @@ label talk_theo:
         mc "Starting to."
         theo "Good spot for it."
         $ flag_met_theo = True
+        $ unlock_phone_contact("theo")
         $ add_rel("theo", 8)
         hide theo with dissolve
     else:

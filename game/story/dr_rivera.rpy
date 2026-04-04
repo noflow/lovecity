@@ -71,6 +71,7 @@ label meet_dr_rivera:
             $ add_stat("acceptance", 8)
 
     $ flag_met_dr_rivera = True
+    $ unlock_phone_contact("dr_rivera")
     $ flag_therapy_started = True
 
     dr_rivera "We'll stop there for today. Same time next week?"
