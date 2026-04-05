@@ -634,8 +634,8 @@ transform phone_position(p_zoom, p_x, p_y):
     zoom p_zoom
 
 # phone relevant! make sure to define all emojis before you use them!
-image emoji_sob = "phone/emoji/sob.png"
-image emoji_dizzy = "phone/emoji/dizzy.png"
+image emoji_sob = "gui/phone/emoji/sob.png"
+image emoji_dizzy = "gui/phone/emoji/dizzy.png"
 
 init -1 python:
     def _phone_bg(img_key, fallback_color):
@@ -664,34 +664,28 @@ screen phone_ui():
         action [Function(lc_hide_phone), NullAction()]
 
     # ── PHONE BEZEL ───────────────────────────────────────────
-    # Outer frame = bezel border, inner frame = screen
+    # Outer frame = bezel (uses base.png from theme)
     frame:
         at phone_position(phone_zoom, phone_x, phone_y)
         xalign 0.5
         yalign 0.5
         xsize 620
         ysize 1040
-        background Solid("#1a1a2e")   # bezel colour
+        background _phone_bg("base_background_image", "#1a1a2e")
         padding (10, 20)
 
+        # Inner frame = screen (uses screen.png from theme as BACKGROUND, not overlay)
         frame:
             xfill True
             yfill True
-            background Solid("#0f172a")  # screen colour
+            background _phone_bg("screen_background_image", "#0f172a")
             padding (0, 0)
-
-            # Phone body background (only add if actual image exists)
-            python:
-                _screen_bg_path = get_phone_theme_value("screen_background_image")
-                _has_screen_bg = _screen_bg_path and renpy.loadable(_screen_bg_path)
-            if _has_screen_bg:
-                add _screen_bg_path
 
             # ── HEADER BAR ────────────────────────────────────────
             frame:
                 xfill True
                 ysize 80
-                background Solid("#162032")
+                background _phone_bg("header_background_image", "#162032")
                 padding (16, 0)
 
                 # Bottom edge accent line
@@ -701,30 +695,57 @@ screen phone_ui():
                     yalign 1.0
                     background Solid("#f472b633")
 
-                # Back button (text-based, no image needed)
+                # Back button (uses theme images with fallback to text)
                 if current_phone_view != "channel_list" and disable_phone_menu_switch == False:
-                    textbutton "← Back":
-                        yalign 0.5
-                        xalign 0.0
-                        padding (8, 6)
-                        background None
-                        hover_background "#33415544"
-                        text_size 22
-                        text_color "#94a3b8"
-                        text_hover_color "#f472b6"
-                        action SetVariable("current_phone_view", "channel_list")
-                    # Show notif dot next to back if other channels have notifs
-                    if has_any_notification_not_active():
-                        text "●":
-                            color "#f43f5e"
-                            size 14
-                            xalign 0.12
-                            yalign 0.35
+                    python:
+                        _back_idle_path = get_phone_theme_value("back_button_idle_image")
+                        _back_notif_path = get_phone_theme_value("back_button_notif_image")
+                        _has_back_img = _back_idle_path and renpy.loadable(_back_idle_path)
+                    if _has_back_img and has_any_notification_not_active() and _back_notif_path and renpy.loadable(_back_notif_path):
+                        imagebutton:
+                            idle _back_notif_path
+                            hover _back_notif_path
+                            yalign 0.5
+                            xalign 0.0
+                            action SetVariable("current_phone_view", "channel_list")
+                    elif _has_back_img:
+                        imagebutton:
+                            idle _back_idle_path
+                            hover _back_idle_path
+                            yalign 0.5
+                            xalign 0.0
+                            action SetVariable("current_phone_view", "channel_list")
+                    else:
+                        textbutton "← Back":
+                            yalign 0.5
+                            xalign 0.0
+                            padding (8, 6)
+                            background None
+                            hover_background "#33415544"
+                            text_size 22
+                            text_color "#94a3b8"
+                            text_hover_color "#f472b6"
+                            action SetVariable("current_phone_view", "channel_list")
+                        # Show notif dot next to back if other channels have notifs
+                        if has_any_notification_not_active():
+                            python:
+                                _notif_dot_path = get_phone_theme_value("notification_dot_image")
+                                _has_notif_dot = _notif_dot_path and renpy.loadable(_notif_dot_path)
+                            if _has_notif_dot:
+                                add _notif_dot_path:
+                                    xalign 0.12
+                                    yalign 0.35
+                            else:
+                                text "●":
+                                    color "#f43f5e"
+                                    size 14
+                                    xalign 0.12
+                                    yalign 0.35
 
                 # Header title
                 if current_phone_view != "channel_list":
                     text phone_channel_data[current_phone_view]["display_name"]:
-                        color "#f472b6"
+                        color get_phone_theme_value("header_text_colour")
                         size 24
                         bold True
                         xalign 0.5
@@ -738,7 +759,7 @@ screen phone_ui():
                             size 22
                             yalign 0.5
                         text phone_config["channels_title"]:
-                            color "#f472b6"
+                            color get_phone_theme_value("header_text_colour")
                             size 24
                             bold True
                             yalign 0.5
@@ -787,13 +808,13 @@ screen phone_ui():
                                         SetVariable("current_phone_view", channel_name)
                                     ]
                                     xfill True
-                                    background ("#162032" if _has_notif else "#0f172a00")
-                                    hover_background "#1e293b"
+                                    background (Solid("#162032") if _has_notif else get_phone_theme_value("channel_button_hover_background") if False else None)
+                                    hover_background get_phone_theme_value("channel_button_hover_background")
                                     padding (14, 12)
                                     hbox:
                                         spacing 14
                                         yalign 0.5
-                                        # Contact initial circle
+                                        # Contact icon or initial circle
                                         python:
                                             _ch_dname = phone_channel_data[channel_name]["display_name"]
                                             _ch_initial = _ch_dname[0] if _ch_dname else "?"
@@ -818,22 +839,30 @@ screen phone_ui():
                                         vbox:
                                             spacing 3
                                             text phone_channel_data[channel_name]["display_name"]:
-                                                color "#e2e8f0"
+                                                color get_phone_theme_value("channel_name_text_colour")
                                                 size 20
                                                 bold True
                                             text get_channel_preview(channel_name):
-                                                color "#64748b"
+                                                color get_phone_theme_value("channel_preview_text_colour")
                                                 size 16
                                         # Notification dot
                                         if _has_notif:
-                                            text "●":
-                                                color "#f43f5e"
-                                                size 18
-                                                xalign 1.0
-                                                yalign 0.5
+                                            python:
+                                                _notif_img = get_phone_theme_value("notification_dot_image")
+                                                _has_notif_img = _notif_img and renpy.loadable(_notif_img)
+                                            if _has_notif_img:
+                                                add _notif_img:
+                                                    xalign 1.0
+                                                    yalign 0.5
+                                            else:
+                                                text "●":
+                                                    color "#f43f5e"
+                                                    size 18
+                                                    xalign 1.0
+                                                    yalign 0.5
                                 # Divider line
                                 frame:
-                                    background Solid("#1e293b44")
+                                    background Solid(get_phone_theme_value("channel_divider_colour"))
                                     xfill True
                                     ysize 1
                                     xpadding 14
@@ -868,22 +897,22 @@ screen phone_ui():
                                         $ text_colour = get_phone_theme_value("message_character_text_colour")
                                         $ anim_direction = -1
                                     $ msg_padding = phone_config["message_padding"]
-                                    # Sender name for group chats
-                                    $ is_group_chat = phone_channel_data[current_phone_view]["is_group"]
-                                    if is_group_chat and sender != phone_config["phone_player_name"] and sender != last_sender_in_chat_view:
+                                    # Sender name label (show when sender changes, skip for player & timestamps)
+                                    if message_kind != 1 and sender != phone_config["phone_player_name"] and sender != last_sender_in_chat_view and sender != "":
                                         text sender:
-                                            style "phone_sender_name_style"
-                                            xalign msg_padding
-                                            xoffset 5
-                                    # Text message
+                                            color get_phone_theme_value("sender_name_text_colour")
+                                            size 16
+                                            xpos msg_padding
+                                            yoffset 2
                                     if message_kind == 0:
+                                        # Normal text message
                                         frame:
                                             if sender == phone_config["phone_player_name"]:
                                                 xpos 1.0 - msg_padding xanchor 1.0
                                             else:
                                                 xpos msg_padding xanchor 0.0
                                             background bubble_bg
-                                            padding (15, 10)
+                                            padding (10, 10)
                                             xmaximum 360
                                             if msg_id == latest_channel_id and not channel_seen_latest[current_phone_view]:
                                                 at message_appear(anim_direction)
@@ -892,12 +921,12 @@ screen phone_ui():
                                                 if phone_config["auto_scroll"]:
                                                     $ yadj.value = (yadj.range + 1000)
                                             text message_text:
-                                                color text_colour
                                                 size phone_config["message_font_size"]
+                                                color text_colour
                                                 layout "tex"
                                         $ last_sender_in_chat_view = sender
                                     elif message_kind == 1:
-                                        # Timestamp
+                                        # Timestamp / system message
                                         null height 15
                                         hbox:
                                             xalign 0.5
@@ -958,7 +987,10 @@ screen phone_ui():
                                         $ last_sender_in_chat_view = sender
                             else:
                                 text "No messages yet.":
-                                    style "phone_message_style"
+                                    color get_phone_theme_value("empty_channel_text_colour")
+                                    size 20
+                                    xalign 0.5
+                                    italic True
                             # Choices
                             if phone_choice_options and phone_choice_channel == current_phone_view:
                                 null height 20
@@ -1023,29 +1055,29 @@ style phone_sender_name_style is default:
 
 transform message_appear(pDirection):
     alpha 0.0
-    xoffset 50 * pDirection # offset based direction
+    xoffset 50 * pDirection
     parallel:
-        ease 0.5 alpha 1.0 # fade in
+        ease 0.5 alpha 1.0
     parallel:
-        easein_back 0.5 xoffset 0 # slide in
+        easein_back 0.5 xoffset 0
     alpha 1.0
 
 transform timestamp_appear():
     alpha 0.0
     yoffset 50
     parallel:
-        ease 0.5 alpha 1.0 # fade up
-    parallel: 
-        easein_back 0.5 yoffset 0 # slide up
+        ease 0.5 alpha 1.0
+    parallel:
+        easein_back 0.5 yoffset 0
 
 transform choice_appear(delay=0.0):
     alpha 0.0
     yoffset 50
     pause delay
     parallel:
-        ease 0.5 alpha 1.0 # fade up
-    parallel: 
-        easein_back 0.5 yoffset 0 # slide up
+        ease 0.5 alpha 1.0
+    parallel:
+        easein_back 0.5 yoffset 0
 
 transform scale_to_fit(maxw, maxh):
     size (maxw, maxh)
