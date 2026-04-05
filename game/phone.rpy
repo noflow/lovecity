@@ -122,7 +122,7 @@ init -1 python:
             "empty_channel_text_colour": "#94A3B8",
             # dark mode images
             "screen_background_image": "",  # disabled — dark_mode screen.png is opaque black; fallback Solid works
-            "header_background_image": "gui/phone/skins/dark_mode/header.png",
+            "header_background_image": "",  # disabled — dark_mode header.png is opaque; fallback Solid works
             "base_background_image": "gui/phone/skins/dark_mode/base.png",
             "back_button_idle_image": "gui/phone/skins/dark_mode/back.png",
             "back_button_notif_image": "gui/phone/skins/dark_mode/back_notif.png",
