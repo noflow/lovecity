@@ -666,6 +666,7 @@ screen phone_ui():
     # ── PHONE BEZEL ───────────────────────────────────────────
     # Outer frame = bezel (uses base.png from theme)
     frame:
+        style "empty"
         at phone_position(phone_zoom, phone_x, phone_y)
         xalign 0.5
         yalign 0.5
@@ -676,6 +677,7 @@ screen phone_ui():
 
         # Inner frame = screen (uses screen.png from theme as BACKGROUND, not overlay)
         frame:
+            style "empty"
             xfill True
             yfill True
             background _phone_bg("screen_background_image", "#0f172a")
@@ -683,6 +685,7 @@ screen phone_ui():
 
             # ── HEADER BAR ────────────────────────────────────────
             frame:
+                style "empty"
                 xfill True
                 ysize 80
                 background _phone_bg("header_background_image", "#162032")
@@ -690,6 +693,7 @@ screen phone_ui():
 
                 # Bottom edge accent line
                 frame:
+                    style "empty"
                     xfill True
                     ysize 2
                     yalign 1.0
@@ -792,6 +796,7 @@ screen phone_ui():
                         yadjustment yadj
                         scrollbars "vertical"
                         mousewheel True
+                        draggable False
                         vbox:
                             spacing 2
                             $ visible_channels = [ch for ch in phone_channel_data.keys() if channel_visible.get(ch, True)]
@@ -826,6 +831,7 @@ screen phone_ui():
                                                 yalign 0.5
                                         else:
                                             frame:
+                                                style "empty"
                                                 xysize (48, 48)
                                                 background Solid("#f472b622")
                                                 yalign 0.5
@@ -862,6 +868,7 @@ screen phone_ui():
                                                     yalign 0.5
                                 # Divider line
                                 frame:
+                                    style "empty"
                                     background Solid(get_phone_theme_value("channel_divider_colour"))
                                     xfill True
                                     ysize 1
