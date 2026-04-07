@@ -625,9 +625,9 @@ init -1 python:
 ## Screen: Phone Messages
 ## -----------------------------------------------------
 # phone relevant! initial phone position and size
-define phone_zoom = 0.50
-define phone_x = 0.5
-define phone_y = 0.5
+default phone_zoom = 0.65
+default phone_x = 0.5
+default phone_y = 0.5
 transform phone_position(p_zoom, p_x, p_y):
     anchor(0.5, 0.5)
     pos(p_x, p_y)
@@ -646,21 +646,24 @@ init -1 python:
         return Solid(fallback_color)
 
 screen phone_ui():
-    zorder 100
+    modal True
+    zorder 150
     default was_channel_unread = False
 
-    # Click-away backdrop to close phone (LoveCity: blocks clicks to screens below)
-    button:
-        style "empty"
-        background "#00000088"
-        xfill True
-        yfill True
-        action [Function(lc_hide_phone), NullAction()]
+    # Ensure phone data is initialised before rendering
+    if not phone_channel_data:
+        $ reset_phone_data()
 
-    # ── PHONE WINDOW ─────────────────────────────────────────
-    # Uses the original kleineluka structure: a window with layered images
-    # and absolutely-positioned content on top.
-    window:
+    # Semi-transparent backdrop (non-interactive — modal absorbs stray clicks)
+    add "#00000088"
+
+    # Escape / right-click to close
+    key "game_menu" action Function(lc_hide_phone)
+
+    # ── PHONE FRAME ──────────────────────────────────────────
+    # Uses the original kleineluka structure: layered images with
+    # absolutely-positioned content on top.
+    frame:
         style "empty"
         at phone_position(phone_zoom, phone_x, phone_y)
         xalign 0.5
