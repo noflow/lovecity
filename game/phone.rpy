@@ -332,8 +332,8 @@ init -1 python:
         _ic = phone_config["default_icon"]
 
         # Family — always visible
-        create_phone_channel("ch_mom",      "Mom",          ["Mom",          _me], _ic)
-        create_phone_channel("ch_sister",   "Emma",         ["Emma",         _me], _ic)
+        create_phone_channel("ch_mom",      "Mom",          ["Mom",          _me], "gui/phone/icons/Sarah.png")
+        create_phone_channel("ch_sister",   "Emma",         ["Emma",         _me], "gui/phone/icons/Emma.png")
         # Friends / School
         create_phone_channel("ch_alex",     "Alex",         ["Alex",         _me], _ic)
         create_phone_channel("ch_maya",     "Maya",         ["Maya",         _me], _ic)
