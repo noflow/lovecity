@@ -83,7 +83,6 @@ init python:
 label lc_phone_init:
     if _phone_ok():
         $ reset_phone_data()
-        $ store._lc_phone_inited = True
     return
 
 

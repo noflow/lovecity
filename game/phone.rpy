@@ -107,6 +107,7 @@ init -1 python:
             "player_bubble_image": "gui/phone/player_bubble.png",
             "player_bubble_hover_image": "gui/phone/player_bubble_hover.png",
             "character_bubble_image": "gui/phone/character_bubble.png",
+            "home_button_image": "gui/phone/home.png",
         },
         "dark": {
             # LoveCity dark mode — pink/purple player, slate character
@@ -130,6 +131,7 @@ init -1 python:
             "player_bubble_image": "gui/phone/skins/dark_mode/player_bubble.png",
             "player_bubble_hover_image": "gui/phone/skins/dark_mode/player_bubble_hover.png",
             "character_bubble_image": "gui/phone/skins/dark_mode/character_bubble.png",
+            "home_button_image": "gui/phone/skins/dark_mode/home.png",
         },
         "flip": {
             # colours for flip phone mode
@@ -153,6 +155,7 @@ init -1 python:
             "player_bubble_image": "gui/phone/player_bubble.png",
             "player_bubble_hover_image": "gui/phone/player_bubble_hover.png",
             "character_bubble_image": "gui/phone/character_bubble.png",
+            "home_button_image": "gui/phone/home.png",
         },
         "status_bar": {
             # colours for status bar phone mode
@@ -176,6 +179,7 @@ init -1 python:
             "player_bubble_image": "gui/phone/player_bubble.png",
             "player_bubble_hover_image": "gui/phone/player_bubble_hover.png",
             "character_bubble_image": "gui/phone/character_bubble.png",
+            "home_button_image": "gui/phone/home.png",
         },
         # Gameplay Configurations
         "pause": { # no pause = messages will not wait for user time or user input before sending the next one
@@ -663,8 +667,7 @@ screen phone_ui():
     # ── PHONE FRAME ──────────────────────────────────────────
     # Uses the original kleineluka structure: layered images with
     # absolutely-positioned content on top.
-    frame:
-        style "empty"
+    window:
         at phone_position(phone_zoom, phone_x, phone_y)
         xalign 0.5
         yalign 0.5
@@ -712,17 +715,27 @@ screen phone_ui():
                     text_hover_color "#f472b6"
                     action SetVariable("current_phone_view", "channel_list")
 
-        # Close button (LoveCity addition)
-        textbutton "✕":
-            style "empty"
-            xalign 0.92
-            yalign 0.1075
-            padding (12, 8)
-            hover_background "#f43f5e44"
-            text_size 26
-            text_color "#94a3b8"
-            text_hover_color "#f43f5e"
-            action [Function(lc_hide_phone), NullAction()]
+        # Home button — closes the phone (uses the circle on the bezel)
+        $ _home_img = get_phone_theme_value("home_button_image")
+        if _home_img and renpy.loadable(_home_img):
+            imagebutton:
+                xalign 0.5
+                yalign 0.955
+                idle _home_img
+                hover _home_img
+                focus_mask True
+                xysize (60, 60)
+                action [Function(lc_hide_phone), NullAction()]
+        else:
+            textbutton "⊙":
+                style "empty"
+                xalign 0.5
+                yalign 0.95
+                padding (12, 8)
+                text_size 32
+                text_color "#ffffff88"
+                text_hover_color "#ffffff"
+                action [Function(lc_hide_phone), NullAction()]
 
         # ── CONTENT AREA ──────────────────────────────────────
         # Positioned to align with the transparent center of the base image
