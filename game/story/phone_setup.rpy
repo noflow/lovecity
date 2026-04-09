@@ -49,13 +49,7 @@ init python:
             renpy.restart_interaction()
 
     def lc_text(channel_id, sender_name, message):
-        """
-        Send a text message in a channel.
-        channel_id:   e.g. "ch_mom"
-        sender_name:  display name matching channel participant, e.g. "Mom"
-                      use phone_config["phone_player_name"] for the player ("Me")
-        message:      string
-        """
+        """Send a text message in a channel."""
         if _phone_ok():
             send_phone_message(sender_name, message, channel_id, do_pause=False)
 

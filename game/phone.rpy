@@ -409,8 +409,9 @@ init -1 python:
             bring back the standard dialogue window. It should be called
             right after hiding the phone_ui screen.
         """
-        global phone_mode
+        global phone_mode, current_phone_view
         phone_mode = False
+        current_phone_view = "channel_list"
         renpy.restart_interaction()
 
     # disable switching phone screens
@@ -650,7 +651,6 @@ init -1 python:
 screen phone_ui():
     modal True
     zorder 150
-    default was_channel_unread = False
 
     # Ensure phone data is initialised before rendering
     if not phone_channel_data:
@@ -748,11 +748,9 @@ screen phone_ui():
                 # Display the title/name at the top of the screen
                 if current_phone_view != "channel_list":
                     null height 5
-                    $ _cv_icon = phone_channel_data[current_phone_view].get("icon", "")
-                    if _cv_icon and renpy.loadable(_cv_icon):
-                        add _cv_icon:
-                            xalign 0.5
-                            xysize (50, 50)
+                    add phone_channel_data[current_phone_view]["icon"]:
+                        xalign 0.5
+                        xysize (50, 50)
                     text phone_channel_data[current_phone_view]["display_name"]:
                         style "phone_header_style"
                         ypos -5
@@ -796,26 +794,9 @@ screen phone_ui():
                                         hbox:
                                             spacing 10
                                             # the chat channel icon
-                                            $ _ch_icon_path = phone_channel_data[channel_name].get("icon", "")
-                                            if _ch_icon_path and renpy.loadable(_ch_icon_path):
-                                                add _ch_icon_path:
-                                                    xysize (50, 50)
-                                                    yalign 0.5
-                                            else:
-                                                # fallback: initial circle
-                                                $ _ch_dname = phone_channel_data[channel_name]["display_name"]
-                                                $ _ch_initial = _ch_dname[0] if _ch_dname else "?"
-                                                frame:
-                                                    style "empty"
-                                                    xysize (50, 50)
-                                                    background Solid("#f472b622")
-                                                    yalign 0.5
-                                                    text _ch_initial:
-                                                        color "#f472b6"
-                                                        size 24
-                                                        bold True
-                                                        xalign 0.5
-                                                        yalign 0.5
+                                            add phone_channel_data[channel_name]["icon"]:
+                                                xysize (50, 50)
+                                                yalign 0.5
                                             # the chat channel name and preview message
                                             vbox:
                                                 text phone_channel_data[channel_name]["display_name"]:
@@ -866,7 +847,7 @@ screen phone_ui():
                                 $ last_sender_in_chat_view = None
                                 # display all messages
                                 for message_data in phone_channels[current_phone_view]:
-                                    $ msg_id, sender, message_text, message_kind, current_global_id, summary_alt, image_x, image_y = message_data
+                                    $ msg_id, sender, message_text, message_kind, _msg_gid, summary_alt, image_x, image_y = message_data
                                     if sender == phone_config["phone_player_name"]:
                                         $ bubble_bg = _phone_bubble("player_bubble_image", "#6d28d9")
                                         $ text_colour = get_phone_theme_value("message_player_text_colour")

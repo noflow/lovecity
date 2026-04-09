@@ -147,18 +147,20 @@ init python:
 
     def lc_show_phone():
         """Show the phone — ensures data initialised, calls phone_start() then shows screen."""
-        if not hasattr(store, "reset_phone_data"):
+        _reset = getattr(store, "reset_phone_data", None)
+        if _reset is None:
             return  # phone.rpy not installed
-        if not store.phone_channel_data:
-            store.reset_phone_data()
-        store.phone_start()
+        if not getattr(store, "phone_channel_data", None):
+            _reset()
+        getattr(store, "phone_start", lambda: None)()
         renpy.show_screen("phone_ui")
 
     def lc_hide_phone():
         """Hide the phone."""
-        if hasattr(store, "reset_phone_data"):
+        _end = getattr(store, "phone_end", None)
+        if _end is not None:
             renpy.hide_screen("phone_ui")
-            store.phone_end()
+            _end()
 
     def add_rel(char_id, amount):
         """Adjust a relationship value, clamped 0-200."""
