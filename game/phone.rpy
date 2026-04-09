@@ -51,6 +51,18 @@
 ## Phone Program Python
 ## -----------------------------------------------------
 default phone_mode = False
+default phone_channel_data = {}
+default phone_channels = {}
+default channel_last_message_id = {}
+default channel_seen_latest = {}
+default channel_notifs = {}
+default channel_visible = {}
+default current_phone_view = "channel_list"
+default disable_phone_menu_switch = False
+default phone_choice_options = []
+default phone_choice_channel = None
+default channel_latest_global_id = {}
+default phone_global_msg_counter = 0
 init -1 python:
     import re
 
@@ -84,7 +96,7 @@ init -1 python:
         "emojis": {
             "size": 32,
         },
-        "phone_theme": "dark",  # LoveCity uses dark mode
+        "phone_theme": "light",  # default theme
         "light": {
             # colours for light mode
             "message_player_text_colour": "#FFFFFF",
@@ -189,20 +201,6 @@ init -1 python:
         }
     }
 
-    # variables to hold the phone data
-    phone_channel_data = {} # {channel_name: {"display_name": "...", "icon": "...", "participants": [], "is_group": False}}
-    phone_channels = {}  # {channel_name: [(id, sender, message_string, kind, ...), ...]}
-    channel_last_message_id = {} # {channel_name: last_id}
-    channel_seen_latest = {} # {channel_name: seen_status} (this could be more intricate to track if EACH message was seen, but that's overkill)
-    channel_notifs = {} # {channel_name: notification_status} (True/False)
-    channel_visible = {} # {channel_name: visible_status} (True/False)
-    current_phone_view = "channel_list" # where when the phone starts it should start at
-    disable_phone_menu_switch = False # lock back button, basically
-    phone_choice_options = [] # this will hold the currently active choices
-    phone_choice_channel = None  # this holds the channel that the above choice aligns to (one at a time)
-    channel_latest_global_id = {} # latest global channel id
-    _phone_global_message_counter = 0  # latest global message counter
-
     # replace inline images natively
     def replace_emojis(text):
         """ Replaces custom emoji tags like <emoji_name> with Ren'Py image tags.
@@ -255,7 +253,7 @@ init -1 python:
                 image_y (int, optional): The max height for a photo message. Defaults to 320.
                 do_pause (bool, optional): Whether to pause the game after the message is sent. Defaults to True.
         """
-        global _phone_global_message_counter, current_global_id
+        global phone_global_msg_counter, current_global_id
         # in case a channel doesn't exist, we now expect them to be explicitly made before-hand~
         if channel_name not in phone_channels:
             renpy.log("Tried to send message to non-existent channel: " + channel_name)
@@ -272,8 +270,8 @@ init -1 python:
                         play_the_sound = False
                 if phone_config.get("play_sound_receive", False) and play_the_sound:
                     renpy.sound.play("audio/phone/receive.mp3", channel="sound")
-        _phone_global_message_counter += 1
-        current_global_id = _phone_global_message_counter
+        phone_global_msg_counter += 1
+        current_global_id = phone_global_msg_counter
         channel_latest_global_id[channel_name] = current_global_id
         last_id = channel_last_message_id.get(channel_name, 0)
         current_id = last_id + 1
@@ -318,7 +316,7 @@ init -1 python:
             inside this function to pre-populate the phone.
         """
         global current_phone_view, phone_channels, channel_last_message_id, channel_notifs, channel_seen_latest, channel_visible, phone_channel_data
-        global channel_latest_global_id, _phone_global_message_counter
+        global channel_latest_global_id, phone_global_msg_counter
         # reset all our data
         phone_channel_data = {}
         phone_channels = {}
@@ -327,7 +325,7 @@ init -1 python:
         channel_seen_latest = {}
         channel_visible = {}
         channel_latest_global_id = {}
-        _phone_global_message_counter = 0
+        phone_global_msg_counter = 0
         current_phone_view = "channel_list"
         # ── LoveCity Contacts ────────────────────────────────────────
         # Maps channel_id → flag that must be True for the contact to appear.
@@ -720,17 +718,17 @@ screen phone_ui():
         if _home_img and renpy.loadable(_home_img):
             imagebutton:
                 xalign 0.5
-                yalign 0.955
+                yalign 0.935
                 idle _home_img
                 hover _home_img
                 focus_mask True
-                xysize (60, 60)
+                xysize (75, 75)
                 action [Function(lc_hide_phone), NullAction()]
         else:
             textbutton "⊙":
                 style "empty"
                 xalign 0.5
-                yalign 0.95
+                yalign 0.935
                 padding (12, 8)
                 text_size 32
                 text_color "#ffffff88"
