@@ -86,7 +86,7 @@ init -1 python:
         "timestamp_font_size": 18,
         "auto_scroll": True,
         "show_sender_in_preview": True,
-        "default_icon": "gui/phone/icon.png",
+        "default_icon": "gui/phone/icons/unknown.png",
         "user_colour": "#FFFFFF",
         "character_colour": "#000000",
         "timestamp_colour": "#000000",
@@ -334,8 +334,8 @@ init -1 python:
         _ic = phone_config["default_icon"]
 
         # Family — always visible
-        create_phone_channel("ch_mom",      "Mom",          ["Mom",          _me], "gui/phone/icons/Sarah.png")
-        create_phone_channel("ch_sister",   "Emma",         ["Emma",         _me], "gui/phone/icons/Emma.png")
+        create_phone_channel("ch_mom",      "Mom",          ["Mom",          _me], "gui/phone/icons/sarah.png")
+        create_phone_channel("ch_sister",   "Emma",         ["Emma",         _me], "gui/phone/icons/emma.png")
         # Friends / School
         create_phone_channel("ch_alex",     "Alex",         ["Alex",         _me], _ic)
         create_phone_channel("ch_maya",     "Maya",         ["Maya",         _me], _ic)
@@ -652,10 +652,6 @@ screen phone_ui():
     modal True
     zorder 150
 
-    # Ensure phone data is initialised before rendering
-    if not phone_channel_data:
-        $ reset_phone_data()
-
     # Semi-transparent backdrop (non-interactive — modal absorbs stray clicks)
     add "#00000088"
 
@@ -665,7 +661,11 @@ screen phone_ui():
     # ── PHONE FRAME ──────────────────────────────────────────
     # Uses the original kleineluka structure: layered images with
     # absolutely-positioned content on top.
+    # style "empty" strips inherited window style (background, xfill, ysize)
+    # that would otherwise draw a textbox image and crush the phone height.
     window:
+        style "empty"
+        background None
         at phone_position(phone_zoom, phone_x, phone_y)
         xalign 0.5
         yalign 0.5
@@ -774,12 +774,20 @@ screen phone_ui():
                         # list of chats
                         vbox:
                             spacing 15
+                            # If data is empty, force init and show debug info
+                            if not phone_channel_data:
+                                $ reset_phone_data()
                             $ visible_channels = [ch for ch in phone_channel_data.keys() if channel_visible.get(ch, True)]
                             python:
                                 if phone_config["sort_channels_by_latest"]:
                                     channel_list_to_display = sorted(visible_channels, key=lambda ch_name: channel_latest_global_id.get(ch_name, 0), reverse=True)
                                 else:
                                     channel_list_to_display = visible_channels
+                            if not channel_list_to_display:
+                                text "No contacts yet ({} total, {} visible)".format(len(phone_channel_data), len(visible_channels)):
+                                    color "#f472b6"
+                                    size 18
+                                    xalign 0.5
                             for channel_name in channel_list_to_display:
                                 button:
                                     action [
